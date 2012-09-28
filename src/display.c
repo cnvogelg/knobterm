@@ -288,8 +288,8 @@ void display_clear(u16 color)
   display_draw_stop();
 }
 
-static u16 fg_color = COLOR_WHITE;
-static u16 bg_color = COLOR_BLACK;
+static u16 fg_color = RGB(0xff,0xff,0xff);
+static u16 bg_color = RGB(0x00,0x00,0x00);
 static const prog_uint8_t *font_data;
 static const u08 bitmask[] = { 0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01 };
 

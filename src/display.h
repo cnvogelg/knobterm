@@ -37,16 +37,6 @@
 
 #define RGB(r,g,b)   (((r&0xF8)<<8)|((g&0xFC)<<3)|((b&0xF8)>>3)) //5 red | 6 green | 5 blue
 
-#define COLOR_WHITE  RGB(255,255,255)
-#define COLOR_BLACK  RGB(  0,  0,  0)
-#define COLOR_RED    RGB(255,  0,  0)
-#define COLOR_GREEN  RGB(  0,255,  0)
-#define COLOR_BLUE   RGB(  0,  0,255)
-
-#define COLOR_LGRAY	 RGB(192,192,192)
-#define COLOR_GRAY	 RGB(128,128,128)
-#define COLOR_DGRAY	 RGB( 64, 64, 64)
-
 // read only parameters
 extern u16 display_width;
 extern u16 display_height;
