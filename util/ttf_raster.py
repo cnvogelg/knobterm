@@ -17,9 +17,9 @@ def raster_char(draw, font, c, w, h):
   if c != 0:
     draw.text((0,0), unichr(c), font=font, fill=1)
 
-def copy_char(image, map_image, xp, gx, gy, sax, say):
+def copy_char(image, map_image, xp, yp, gx, gy, sax, say):
   sy = 0
-  ty = 0
+  ty = yp
   for y in xrange(gy):
     sx = 0
     tx = xp
@@ -103,7 +103,8 @@ parser.add_argument('-y', '--grid-y', type=int, default=8, help="height of chara
 parser.add_argument('-X', '--sample-x', type=int, default=1, help="sample factor in x direction")
 parser.add_argument('-Y', '--sample-y', type=int, default=1, help="sample factor in y direction")
 parser.add_argument('-t', '--map-size', type=int, default=256, help="set number of chars in map")
-parser.add_argument('-m', '--mapping', nargs='*', help="map characters: <offset>:<num>:<unicode offset>")
+parser.add_argument('-c', '--columns', type=int, default=0, help="columns in PNG image")
+parser.add_argument('-m', '--mapping', action='append', help="map characters: <offset>:<num>:<unicode offset>")
 parser.add_argument('-R', '--raw-file', default=None, help="save raw data dump")
 parser.add_argument('-C', '--c-file', default=None, help="save hexdump data dump in C format")
 parser.add_argument('-A', '--ascii-file', default=None, help="save ASCII dump")
@@ -136,6 +137,18 @@ byte_size = image_size / 8
 box_w = sx * gx
 box_h = sy * gy
 
+# png image size
+cols = args.columns
+rows = 1
+if cols == 0:
+  png_w = image_width
+  png_h = image_height
+  cols = map_size
+else:
+  rows = map_size / cols
+  png_w = gx * cols
+  png_h = gy * rows
+
 print("Font File:       '%s'" % font_name)
 print("Font Size:       %d" % font_size)
 print("Character Map:   %d" % map_size)
@@ -143,10 +156,12 @@ print("Image Size:      %d x %d x %d = %d x %d" % (map_size, gx, gy, image_width
 print("Raw Bytes:       %d" % byte_size)
 print("Raster Box Size: %d x %d" % (box_w, box_h))
 print("Sampling:        %d x %d" % (sx, sy))
+print("PNG Size:        %d x %d" % (png_w, png_h))
 
 # create image
 map_image = Image.new("1",(image_width,image_height))
 image = Image.new("1", (box_w, box_h))
+png_image = Image.new("1", (png_w, png_h))
 draw = ImageDraw.Draw(image)
 font = ImageFont.truetype(font_name, font_size)
 
@@ -158,16 +173,20 @@ for m in mapping:
   print("Mapping: [0x%02x ... 0x%02x] codepoint +@0x%04x" % (begin, begin+num-1, uni_offset))
   code = begin
   xp = code * gx
+  yp = 0
   for i in xrange(num):
-    raster_char(draw, font, code + uni_offset, box_w, box_h)
-    copy_char(image, map_image, xp, gx, gy, sx, sy)
+    raster_char(draw, font, uni_offset + i, box_w, box_h)
+    copy_char(image, map_image, xp, yp, gx, gy, sx, sy)
+    px = (code % cols) * gx
+    py = (code / cols) * gy
+    copy_char(image, png_image, px, py, gx, gy, sx, sy)
     code += 1
     xp += gx
 
 # export font data
 if args.png_file != None:
   print("Writing PNG: '%s'" % args.png_file)
-  map_image.save(args.png_file)
+  png_image.save(args.png_file)
     
 # raw data
 raw_data = map_image.tostring()

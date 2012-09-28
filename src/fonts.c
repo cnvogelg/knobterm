@@ -18,3 +18,7 @@
 const prog_uint8_t topaz_font[2048] = {
 #include "topaz.inc"
 };
+
+const prog_uint8_t c64_font[2048] = {
+#include "c64.inc"
+};
