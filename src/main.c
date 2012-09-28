@@ -88,9 +88,9 @@ void init(void)
   fatfs_init(2);
   
   // terminal init
+  screen_init();
   read_init();
   console_init();
-  screen_init();
   command_init();
 }
 

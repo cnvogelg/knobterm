@@ -27,8 +27,6 @@
 #include "display.h"
 #include <util/delay.h>
    
-#include "uartutil.h"
-
 #define LED_PIN        1
 #define LED_ENABLE()   PORTB |=  (1<<1)
 #define LED_DISABLE()  PORTB &= ~(1<<1)
@@ -299,7 +297,6 @@ static void draw_x1y1(u16 x, u16 y, const prog_uint8_t *ptr)
 {
   for(u08 y=0;y<8;y++) {
     u08 bits = pgm_read_byte(ptr);
-    uart_send_hex_byte_crlf(bits);
     for(u08 x=0;x<8;x++) {
       display_draw_pixel( bits & bitmask[x] ? fg_color : bg_color);
     }
@@ -384,22 +381,19 @@ void display_draw_char(u16 x,u16 y,u08 ch)
   u16 pos = ch << 3;
   const prog_uint8_t *ptr = font_data + pos;
   
-  uart_send_crlf();
-  uart_send_hex_byte_crlf(ch);
-  
   display_set_area(x,y,x+font_w,y+font_h);
   display_draw_start();
   text_func(x,y,ptr);
   display_draw_stop();
 }
 
-void display_draw_rect(u16 x, u16 y, u16 w, u16 h)
+void display_draw_rect(u16 x, u16 y, u16 w, u16 h, u16 col)
 {
   display_set_area(x,y,x+w-1,y+h-1);
   display_draw_start();
   u16 num = w * h;
   for(u16 i=0;i<num;i++) {
-    display_draw_pixel( fg_color );
+    display_draw_pixel( col );
   }
   display_draw_stop();
 }

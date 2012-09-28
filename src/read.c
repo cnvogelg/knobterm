@@ -69,9 +69,13 @@ void read_putch(u08 ch)
     if(ch == begin_cmd) {
       in_cmd = 1;
     }
+    /* newline? */
+    else if(ch == '\n') {
+      console_newline(console_get_current());
+    }
     /* not command character? */
     else {
-      console_putch(ch);
+      console_putch(console_get_current(),ch);
     }
   }
 }

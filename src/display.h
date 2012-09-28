@@ -67,6 +67,6 @@ extern void display_set_color(u16 fg, u16 bg);
 extern void display_set_font_data(const prog_uint8_t *data);
 extern void display_set_font_scale(u08 x2, u08 y2);
 extern void display_draw_char(u16 x,u16 y,u08 ch);
-extern void display_draw_rect(u16 x, u16 y, u16 w, u16 h);
+extern void display_draw_rect(u16 x, u16 y, u16 w, u16 h, u16 col);
 
 #endif

@@ -53,10 +53,25 @@ void screen_init(void)
   display_clear(0);
   display_set_font_scale(0,0);
   
-  screen_puts(5,5+0,txt,FGBG(1,0),0);
-  screen_puts(5,5+1,txt,FGBG(1,0),FLAGS_FONT_2X);
-  screen_puts(5,5+2,txt,FGBG(1,0),FLAGS_FONT_2Y);
-  screen_puts(5,5+4,txt,FGBG(1,0),FLAGS_FONT_2XY);
+  screen_puts(0,28,"knobterm",FGBG(1,0),FLAGS_FONT_2XY);
+  screen_puts(20,28,VERSION,FGBG(1,0),0);
+  screen_puts(20,29,"by lallafa",FGBG(1,0),0);
+}
+
+void screen_clear(u08 col)
+{
+  u16 bg = palette[col & 0xf];
+  display_clear(bg);
+}
+  
+void screen_erase(u08 x, u08 y, u08 w, u08 h, u08 col)
+{
+  u16 bg = palette[col & 0xf];
+  u16 xp = x << 3;
+  u16 yp = y << 3;
+  u16 wp = w << 3;
+  u16 hp = h << 3;
+  display_draw_rect(xp,yp,wp,hp,bg);
 }
 
 void screen_putch(u08 x, u08 y, u08 ch, u08 col, u08 flags)
