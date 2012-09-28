@@ -25,8 +25,9 @@
  */
 
 #include "display.h"
-#include "topaz.h"
 #include <util/delay.h>
+   
+#include "uartutil.h"
 
 #define LED_PIN        1
 #define LED_ENABLE()   PORTB |=  (1<<1)
@@ -291,64 +292,115 @@ void display_clear(u16 color)
 
 static u16 fg_color = COLOR_WHITE;
 static u16 bg_color = COLOR_BLACK;
-static u08 font_h = 15;
-static u08 font_step = 1;
+static const prog_uint8_t *font_data;
+static const u08 bitmask[] = { 0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01 };
+
+static void draw_x1y1(u16 x, u16 y, const prog_uint8_t *ptr)
+{
+  for(u08 y=0;y<8;y++) {
+    u08 bits = pgm_read_byte(ptr);
+    uart_send_hex_byte_crlf(bits);
+    for(u08 x=0;x<8;x++) {
+      display_draw_pixel( bits & bitmask[x] ? fg_color : bg_color);
+    }
+    ptr++;
+  }
+}
+
+static void draw_x2y1(u16 x, u16 y, const prog_uint8_t *ptr)
+{
+  for(u08 y=0;y<8;y++) {
+    u08 bits = pgm_read_byte(ptr);
+    for(u08 x=0;x<8;x++) {
+      u16 col = bits & bitmask[x] ? fg_color : bg_color;
+      display_draw_pixel(col);
+      display_draw_pixel(col);
+    }
+    ptr++;
+  }
+}
+
+static void draw_x1y2(u16 x, u16 y, const prog_uint8_t *ptr)
+{
+  for(u08 y=0;y<8;y++) {
+    u08 bits = pgm_read_byte(ptr);
+    for(u08 x=0;x<8;x++) {
+      display_draw_pixel( bits & bitmask[x] ? fg_color : bg_color);
+    }
+    for(u08 x=0;x<8;x++) {
+      display_draw_pixel( bits & bitmask[x] ? fg_color : bg_color);
+    }
+    ptr++;
+  }
+}
+
+static void draw_x2y2(u16 x, u16 y, const prog_uint8_t *ptr)
+{
+  for(u08 y=0;y<8;y++) {
+    u08 bits = pgm_read_byte(ptr);
+    for(u08 x=0;x<8;x++) {
+      u16 col = bits & bitmask[x] ? fg_color : bg_color;
+      display_draw_pixel(col);
+      display_draw_pixel(col);
+    }
+    for(u08 x=0;x<8;x++) {
+      u16 col = bits & bitmask[x] ? fg_color : bg_color;
+      display_draw_pixel(col);
+      display_draw_pixel(col);
+    }
+    ptr++;
+  }
+}
+
+typedef void (*text_func_t)(u16 x, u16 y, const prog_uint8_t *ptr);
+static text_func_t text_func;
+static text_func_t funcs[4] = { draw_x1y1, draw_x2y1, draw_x1y2, draw_x2y2 };
+static u08 font_w;
+static u08 font_h;
 
 void display_set_color(u16 fg, u16 bg)
 {
-    fg_color = fg;
-    bg_color = bg;
+  fg_color = fg;
+  bg_color = bg;
 }
 
-void display_set_font_half(u08 half)
+void display_set_font_data(const prog_uint8_t *data)
 {
-    if(half) {
-        font_h = 7;
-        font_step = 2;
-    } else {
-        font_h = 15;
-        font_step = 1;
-    }
+  font_data = data;
 }
 
-const u08 bitmask[] = { 0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01 };
+void display_set_font_scale(u08 x2, u08 y2)
+{
+  int off = 0;
+  if(x2) off++;
+  if(y2) off+=2;
+  text_func = funcs[off];
+  font_w = x2 ? 15 : 7;
+  font_h = y2 ? 15 : 7;
+}
 
 void display_draw_char(u16 x,u16 y,u08 ch)
 {
-    u16 pos = ch << 4;
-    
-    const prog_uint8_t *ptr = topaz_font_PGM + pos;
-    
-    display_set_area(x,y,x+7,y+font_h);
-
-    display_draw_start();
-    for(u08 y=0;y<=font_h;y++) {
-        u08 bits = pgm_read_byte(ptr);
-        for(u08 x=0;x<8;x++) {
-            display_draw_pixel( bits & bitmask[x] ? fg_color : bg_color);
-        }
-        ptr += font_step;
-    }
-    display_draw_stop();
-}
-
-void display_draw_string(u16 x,u16 y,const u08 *str)
-{
-    while(*str != '\0') {
-        display_draw_char(x,y,*str);
-        x+=8;
-        str++;
-    }
+  u16 pos = ch << 3;
+  const prog_uint8_t *ptr = font_data + pos;
+  
+  uart_send_crlf();
+  uart_send_hex_byte_crlf(ch);
+  
+  display_set_area(x,y,x+font_w,y+font_h);
+  display_draw_start();
+  text_func(x,y,ptr);
+  display_draw_stop();
 }
 
 void display_draw_rect(u16 x, u16 y, u16 w, u16 h)
 {
-	display_set_area(x,y,x+w-1,y+h-1);
-	display_draw_start();
-	u16 num = w * h;
-	for(u16 i=0;i<num;i++) {
-		display_draw_pixel( fg_color );
-	}
-	display_draw_stop();
+  display_set_area(x,y,x+w-1,y+h-1);
+  display_draw_start();
+  u16 num = w * h;
+  for(u16 i=0;i<num;i++) {
+    display_draw_pixel( fg_color );
+  }
+  display_draw_stop();
 }
 

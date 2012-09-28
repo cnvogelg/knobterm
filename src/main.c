@@ -31,6 +31,11 @@
 #include "fat/fatfs.h"
 #include "jog.h"
 #include "util.h"
+   
+#include "read.h"
+#include "console.h"
+#include "screen.h"
+#include "command.h"
 
 static void read_image(void)
 {
@@ -77,11 +82,16 @@ void init(void)
   jog_init();
   // display init()
   display_init(2);
-  display_clear(0);
   
   // sdcard/fatfs init
   timer_set_10ms_func(fatfs_service);
   fatfs_init(2);
+  
+  // terminal init
+  read_init();
+  console_init();
+  screen_init();
+  command_init();
 }
 
 int main(void)
@@ -97,6 +107,7 @@ int main(void)
 
   // main loop
   while(1) {
+    read_serial();
   }
   return 0;
 }

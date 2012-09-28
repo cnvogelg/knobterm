@@ -27,6 +27,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include <avr/pgmspace.h>
 #include "global.h"
 
 #define DISPLAY_ORIENTATION_0           0
@@ -63,9 +64,9 @@ extern void display_draw_stop(void);
 extern void display_clear(u16 color);
 
 extern void display_set_color(u16 fg, u16 bg);
-extern void display_set_font_half(u08 half);
+extern void display_set_font_data(const prog_uint8_t *data);
+extern void display_set_font_scale(u08 x2, u08 y2);
 extern void display_draw_char(u16 x,u16 y,u08 ch);
-extern void display_draw_string(u16 x,u16 y,const u08 *str);
 extern void display_draw_rect(u16 x, u16 y, u16 w, u16 h);
 
 #endif

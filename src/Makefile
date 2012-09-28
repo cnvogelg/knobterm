@@ -78,9 +78,10 @@ OUTPUT = $(OUTDIR)/$(BASENAME)
 # source files
 SRC := $(BOARD).c
 SRC += util.c uart.c uartutil.c timer.c
-SRC += display.c topaz.c jog.c
+SRC += display.c fonts.c jog.c
 SRC += fat/fatfs.c fat/ff.c fat/mmc.c
-SRC += main.c
+SRC += read.c console.c screen.c 
+SRC += command.c main.c
 
 # output format
 FORMAT = ihex
