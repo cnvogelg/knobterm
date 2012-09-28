@@ -1,0 +1,21 @@
+The knobterm Project
+--------------------
+
+This project combines an Arduino (2009) board, a small LCD shield [1] and a jog
+dial in a small box to create a mini terminal.
+
+The terminal is connected via a virtual serial port over USB to a host system.
+It displays the incoming text data on the LCD. User input given by the jog
+wheel is reported as serial commands. The terminal also understands a large set
+of commands that can be embedded into the text stream. Commands include setting
+the text font, color, size, defining windows on screen, positioning the cursor,
+showing images and lots more.
+
+The main application of this terminal is to provide a user I/O module for host
+system that do not provider any UI. I currently use it for my Raspberry Pi to
+provide an easy mechanism for user control. Another application is a status
+display on a Home Theatre PC.
+
+[1] http://www.watterott.com/de/MI0283QT-2-Adapter
+[2] Encoder PANASONIC EVEQDBRL416B 
+http://www.pollin.de/shop/dt/Njg2OTU3OTk-/Bauelemente_Bauteile/Passive_Bauelemente/Potis_Trimmer_Encoder/Encoder_PANASONIC_EVEQDBRL416B.html
