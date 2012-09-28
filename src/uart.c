@@ -4,7 +4,7 @@
 * Written by
 *  Christian Vogelgsang <chris@vogelgsang.org>
 *
-* This file is part of dtv2ser.
+* This file is part of knobterm.
 * See README for copyright notice.
 *
 *  This program is free software; you can redistribute it and/or modify

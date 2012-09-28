@@ -8,7 +8,7 @@
  *   http://www.mikrocontroller.net/articles/Drehgeber
  *   http://www.mikrocontroller.net/articles/Entprellung
  *
- * This file is part of dfx-capture-ctrl.
+ * This file is part of knobterm.
  * See README for copyright notice.
  *
  *  This program is free software; you can redistribute it and/or modify
