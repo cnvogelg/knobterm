@@ -1,0 +1,13 @@
+#!/usr/bin/env python3.2
+#
+# knobtest - a test program for the knobterm box
+#
+
+import knobterm
+
+serial_port = "/dev/cu.usbserial-A700fjkF"
+kt = knobterm.KnobTerm(serial_port)
+v = kt.get_version()
+print("version",v)
+
+kt.close()

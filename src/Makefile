@@ -77,10 +77,10 @@ OUTPUT = $(OUTDIR)/$(BASENAME)
 
 # source files
 SRC := $(BOARD).c
-SRC += util.c uart.c uartutil.c timer.c
+SRC += util.c uart.c timer.c
 SRC += display.c fonts.c jog.c
 SRC += fat/fatfs.c fat/ff.c fat/mmc.c
-SRC += read.c console.c screen.c 
+SRC += read.c console.c screen.c write.c 
 SRC += command.c main.c
 
 # output format

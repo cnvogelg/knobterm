@@ -1,5 +1,5 @@
 /*
- * read.h - read input for terminal
+ * read.h - read input for terminal from host
  *
  * Written by
  *  Christian Vogelgsang <chris@vogelgsang.org>

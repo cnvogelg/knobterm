@@ -26,13 +26,37 @@
 
 #include "global.h"
 #include "command.h"
+#include "write.h"
 
 void command_init(void)
 {
    
 }
 
+static void error(u08 num)
+{
+  write_begin();
+  write_cmd('E');
+  write_hex_byte(num);
+  write_end();
+}
+
+static void version(void)
+{
+  write_begin();
+  write_cmd('v');
+  write_pstr(PSTR(VERSION));
+  write_end();
+}
+
 void command_parse(const u08 *cmd)
 {
-  
+  switch(cmd[0]) {
+    case 'v':
+      version();
+      break;
+    default:
+      error(0);
+      break;
+  }
 }

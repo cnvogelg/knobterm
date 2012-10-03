@@ -1,5 +1,5 @@
 /*
- * uartutil.h - serial utility routines
+ * write.h - write output from terminal to host
  *
  * Written by
  *  Christian Vogelgsang <chris@vogelgsang.org>
@@ -24,24 +24,17 @@
  *
  */
 
-#ifndef UARTUTIL_H
-#define UARTUTIL_H
+#ifndef WRITE_H
+#define WRITE_H
 
-#include "global.h"
+#include <avr/pgmspace.h>
 
-// send a c string
-void uart_send_string(u08 *data);
-// send data
-void uart_send_data(u08 *data,u08 size);
-// send a CR+LF
-void uart_send_crlf(void);
-
-// send a hex byte
-void uart_send_hex_byte_crlf(u08 data);
-// send a hex word
-void uart_send_hex_word_crlf(u16 data);
-// send a hex6 dword
-void uart_send_hex_dword6_crlf(u32 data); 
+extern void write_begin(void);
+extern void write_cmd(u08 c);
+extern void write_str(const char *str);
+extern void write_pstr(PGM_P data);
+extern void write_hex_nybble(u08 b);
+extern void write_hex_byte(u08 b);
+extern void write_end(void);
 
 #endif
-

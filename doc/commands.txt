@@ -1,0 +1,27 @@
+commands.txt - Control commands of knobterm
+-------------------------------------------
+
+1. Introduction
+---------------
+
+Commands are started with the '@' char and ended with ';', '\n' (new line) or
+another command '@'.
+
+Examples:
+
+  hello@v;world           ; command "@v;" embedded in stream
+  @v\n                    ; single line command
+  @v@m\n                  ; multiple commands in a row
+  @v;@m;                  ; similar command sequence
+  hello @@ world          ; @@ -> gives a single @
+
+
+2. Command Reference
+--------------------
+
+ 'v' - query version
+ 
+   syntax: @v
+   reply:  @v<major>.<minor>
+   
+   returns the firmware version of knobterm

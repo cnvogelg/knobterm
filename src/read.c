@@ -48,15 +48,31 @@ void read_putch(u08 ch)
   /* in a command sequence? */
   if(in_cmd) {
     /* command just ended */
-    if(ch == end_cmd) {
+    if((ch == end_cmd)||(ch == '\n')) {
       line[line_pos] = 0;
       in_cmd = 0;
-      command_parse(line);
+      if(line_pos > 0) {
+        command_parse(line);
+      }
     }
     /* begin of a new command */
     else if(ch == begin_cmd) {
-      line[line_pos] = 0;
-      command_parse(line);
+      /* single char is quoted */
+      if(line_pos == 0) {
+        console_putch(console_get_current(),'@');
+        in_cmd = 0;
+      } 
+      /* other sequence is a command */
+      else {
+        line[line_pos] = 0;
+        command_parse(line);
+        /* start next command */
+        line_pos = 0;
+      }
+    }
+    /* ignore CR */
+    else if(ch == '\r') {
+      // nothing
     }
     /* in command */
     else if(line_pos < (MAX_LINE-1)) {
@@ -72,6 +88,10 @@ void read_putch(u08 ch)
     /* newline? */
     else if(ch == '\n') {
       console_newline(console_get_current());
+    }
+    /* return */
+    else if(ch == '\r') {
+      // nothing
     }
     /* not command character? */
     else {
