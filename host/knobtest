@@ -9,5 +9,7 @@ serial_port = "/dev/cu.usbserial-A700fjkF"
 kt = knobterm.KnobTerm(serial_port)
 v = kt.get_version()
 print("version",v)
+kt.write("@fA;HALLO @fB;HALLO @fx;@c02;hallo duda\n")
+print(kt.read_line())
 
 kt.close()

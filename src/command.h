@@ -28,6 +28,6 @@
 #define COMMAND_H
 
 extern void command_init(void);
-extern void command_parse(const u08 *cmd);
+extern void command_parse(const u08 *cmd, u08 len);
    
 #endif

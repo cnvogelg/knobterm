@@ -52,7 +52,13 @@ void read_putch(u08 ch)
       line[line_pos] = 0;
       in_cmd = 0;
       if(line_pos > 0) {
-        command_parse(line);
+        command_parse(line, line_pos);
+        /* start new command */
+        line_pos = 0;
+      } else {
+        /* enter @ \n */
+        console_putch(console_get_current(),'@');
+        console_putch(console_get_current(),'\n');
       }
     }
     /* begin of a new command */
@@ -65,7 +71,7 @@ void read_putch(u08 ch)
       /* other sequence is a command */
       else {
         line[line_pos] = 0;
-        command_parse(line);
+        command_parse(line, line_pos);
         /* start next command */
         line_pos = 0;
       }
@@ -84,14 +90,6 @@ void read_putch(u08 ch)
     /* does a command start? */
     if(ch == begin_cmd) {
       in_cmd = 1;
-    }
-    /* newline? */
-    else if(ch == '\n') {
-      console_newline(console_get_current());
-    }
-    /* return */
-    else if(ch == '\r') {
-      // nothing
     }
     /* not command character? */
     else {

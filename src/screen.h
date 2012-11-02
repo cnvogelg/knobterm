@@ -33,6 +33,9 @@
 #define FLAGS_FONT_2Y    0x02
 #define FLAGS_FONT_2XY   (FLAGS_FONT_2X | FLAGS_FONT_2Y)
 
+#define FLAGS_FONT_CHARSET_MASK  0x10
+#define FLAGS_FONT_CHARSET_SHIFT 4
+
 #define COLOR_BLACK        0
 #define COLOR_WHITE        1
 #define COLOR_RED          2
@@ -54,6 +57,5 @@ extern void screen_init(void);
 extern void screen_clear(u08 col);
 extern void screen_erase(u08 x, u08 y, u08 w, u08 h, u08 col);
 extern void screen_putch(u08 x, u08 y, u08 ch, u08 col, u08 flags);
-extern void screen_puts(u08 x, u08 y, const char *str, u08 col, u08 flags);
 
 #endif

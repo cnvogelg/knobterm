@@ -47,6 +47,13 @@ void write_cmd(u08 c)
   }
 }
 
+void write_ch(char c)
+{  
+  if(pos < MAX_LINE) {
+    line[pos++] = c;
+  }
+}
+
 void write_str(const char *str)
 {
   while(*str && (pos < MAX_LINE)) {

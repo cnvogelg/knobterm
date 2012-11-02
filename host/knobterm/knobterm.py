@@ -12,7 +12,6 @@ class KnobTerm:
     self.ser.close()
   
   def get_version(self):
-    self.write("@@\n");
     self.write("@v\n");
     l = self.read_line()
     if l.startswith("@v"):
@@ -24,7 +23,10 @@ class KnobTerm:
     b = s.encode('latin-1')
     self.ser.write(b)
     
-  def read_line(self):
+  def read_line(self, block=True):
+    if not block:
+      if self.ser.inWaiting() == 0:
+        return None
     line = b""
     while True:
       c = self.ser.read()

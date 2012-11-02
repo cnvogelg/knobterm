@@ -55,18 +55,21 @@ static u08 cur_col = 0;
 static u08 cur_flags = 0;
 static u16 cur_fg = 0;
 static u16 cur_bg = 0;
+static u08 cur_font = 0;
 
 const char *txt = "ABCDEFGHIJKLM";
 
+#define NUM_FONTS 2
+static const prog_uint8_t *font_table[] = {
+  topaz_font,
+  c64_font
+};
+
 void screen_init(void)
 {
-  display_set_font_data(topaz_font);
+  display_set_font_data(font_table[0]);
   display_clear(0);
   display_set_font_scale(0,0);
-  
-  screen_puts(0,28,"knobterm",FGBG(1,0),FLAGS_FONT_2XY);
-  screen_puts(20,28,VERSION,FGBG(1,0),0);
-  screen_puts(20,29,"by lallafa",FGBG(1,0),0);
 }
 
 void screen_clear(u08 col)
@@ -97,23 +100,19 @@ void screen_putch(u08 x, u08 y, u08 ch, u08 col, u08 flags)
   /* update flags */
   if(flags != cur_flags) {
     cur_flags = flags;
+    /* update scaling */
     u08 x2 = (cur_flags & FLAGS_FONT_2X);
     u08 y2 = (cur_flags & FLAGS_FONT_2Y);
     display_set_font_scale(x2, y2);
+    /* update charset */
+    u08 font = (flags & FLAGS_FONT_CHARSET_MASK) >> FLAGS_FONT_CHARSET_SHIFT;
+    if((font != cur_font) && (font < NUM_FONTS)) {
+      cur_font = font;
+      display_set_font_data(font_table[cur_font]);
+    }
   }
   
   u16 xp = x << 3;
   u16 yp = y << 3;
   display_draw_char(xp,yp,ch);
-}
-
-void screen_puts(u08 x, u08 y, const char *str, u08 col, u08 flags)
-{
-  while(*str) {
-    u08 ch = (u08)*str;
-    screen_putch(x,y,ch,col,flags);
-    if(flags & FLAGS_FONT_2X) x++;
-    x++;
-    str++;
-  }
 }

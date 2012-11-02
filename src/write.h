@@ -31,6 +31,7 @@
 
 extern void write_begin(void);
 extern void write_cmd(u08 c);
+extern void write_ch(char c);
 extern void write_str(const char *str);
 extern void write_pstr(PGM_P data);
 extern void write_hex_nybble(u08 b);

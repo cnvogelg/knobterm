@@ -105,6 +105,8 @@ int main(void)
     fatfs_umount();
   }
 
+  console_welcome();
+
   // main loop
   while(1) {
     read_serial();
