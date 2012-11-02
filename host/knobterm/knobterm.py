@@ -58,4 +58,11 @@ class KnobTerm:
     self.write(cmd)
     res = self.read_line()
     return res == "@d00"
+  
+  def draw_grid(self, type, x, y, nx, ny, dx, dy, col):
+    cmd = "@c%02x@dg%c%02x%02x%02x%02x%02x%02x;" % (col, chr(65+type),x,y,nx,ny,dx,dy)
+    self.write(cmd)
+    res = self.read_line()
+    return res == "@d00"
+    
 

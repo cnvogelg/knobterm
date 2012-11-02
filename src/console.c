@@ -138,6 +138,12 @@ void console_rect(console_t *c, u08 ch, u08 x, u08 y, u08 w, u08 h)
   draw_rect(ch, x, y, w, h);
 }
 
+void console_grid(console_t *c, u08 t, u08 x, u08 y, u08 nx, u08 ny, u08 dx, u08 dy)
+{
+  screen_update_color(c->color);
+  draw_grid(t, x, y, nx, ny, dx, dy);
+}
+
 void console_goto(console_t *c, u08 x, u08 y)
 {
   if(x >= c->width) {

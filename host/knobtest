@@ -30,6 +30,8 @@ kt.draw_rect('!', 1,12,4,4, 0xf)
 kt.draw_rect(' ', 7,12,4,4, 0xe)
 kt.draw_rect('o', 13,12,4,4, 0xd)
 
+kt.draw_grid(0, 20,10, 4,4, 1, 1, 0xc)
+
 # movement
 kt.goto(0,29)
 kt.write("move")

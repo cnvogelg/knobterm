@@ -144,34 +144,41 @@ static u08 cmd_flags(const u08 *cmd, u08 len)
   return CMD_OK;
 }
 
+static u08 vals[6];
+
+static u08 parse_vals(const u08 *arg, u08 num)
+{
+  for(u08 i=0;i<num;i++) {
+    if(!parse_byte(arg,&vals[i])) {
+      return CMD_NO_BYTE;
+    }
+    arg+=2;
+  }
+  return CMD_OK;
+}
+
 static u08 cmd_draw_border(const u08 *cmd, u08 len)
 {
   if(len != 10) {
     return CMD_SYNTAX_ERR;
   }
   
-  u08 t,x,y,w,h;
-  
+  // parse type
+  u08 t;
   switch(cmd[1]) {
     case 'A': t=0; break;
     case 'B': t=1; break;
     case 'C': t=2; break;
     default: return CMD_SYNTAX_ERR;
   }
-  if(!parse_byte(cmd+2,&x)) {
-    return CMD_NO_BYTE;
-  }
-  if(!parse_byte(cmd+4,&y)) {
-    return CMD_NO_BYTE;
-  }
-  if(!parse_byte(cmd+6,&w)) {
-    return CMD_NO_BYTE;
-  }
-  if(!parse_byte(cmd+8,&h)) {
-    return CMD_NO_BYTE;
+  
+  // parse coords
+  u08 res = parse_vals(cmd+2,4);
+  if(res != CMD_OK) {
+    return res;
   }
   
-  console_border(console_get_current(), t, x, y, w, h);
+  console_border(console_get_current(), t, vals[0], vals[1], vals[2], vals[3]);
   return CMD_OK;
 }
 
@@ -181,23 +188,39 @@ static u08 cmd_draw_rect(const u08 *cmd, u08 len)
     return CMD_SYNTAX_ERR;
   }
 
-  u08 t,x,y,w,h;
+  // char to draw
+  u08 t = cmd[1];
   
-  t = cmd[1];
-  if(!parse_byte(cmd+2,&x)) {
-    return CMD_NO_BYTE;
-  }
-  if(!parse_byte(cmd+4,&y)) {
-    return CMD_NO_BYTE;
-  }
-  if(!parse_byte(cmd+6,&w)) {
-    return CMD_NO_BYTE;
-  }
-  if(!parse_byte(cmd+8,&h)) {
-    return CMD_NO_BYTE;
+  // parse coords
+  u08 res = parse_vals(cmd+2,4);
+  if(res != CMD_OK) {
+    return res;
   }
   
-  console_rect(console_get_current(), t, x, y, w, h);
+  console_rect(console_get_current(), t, vals[0], vals[1], vals[2], vals[3]);
+  return CMD_OK;
+}
+
+static u08 cmd_draw_grid(const u08 *cmd, u08 len)
+{
+  if(len!=14) {
+    return CMD_SYNTAX_ERR;
+  }
+  
+  // parse type
+  u08 t;
+  switch(cmd[1]) {
+    case 'A': t=0; break;
+    default: return CMD_SYNTAX_ERR;
+  }
+  
+  // parse coords
+  u08 res = parse_vals(cmd+2,6);
+  if(res != CMD_OK) {
+    return res;
+  }
+  
+  console_grid(console_get_current(), t, vals[0], vals[1], vals[2], vals[3], vals[4], vals[5]);
   return CMD_OK;
 }
 
@@ -210,6 +233,9 @@ static u08 cmd_draw(const u08 *cmd, u08 len)
       break;
     case 'r':
       result = cmd_draw_rect(cmd+1,len-1);
+      break;
+    case 'g':
+      result = cmd_draw_grid(cmd+1,len-1);
       break;
     default:
       return CMD_UNKNOWN_ERR;

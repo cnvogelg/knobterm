@@ -51,8 +51,10 @@ extern void console_putch(console_t *c,u08 ch);
 extern void console_newline(console_t *c);
 extern void console_next_char(console_t *c);
 extern void console_putr(console_t *c, PGM_P pstr);
+extern void console_goto(console_t *c, u08 x, u08 y);
+
 extern void console_border(console_t *c, u08 t, u08 x, u08 y, u08 w, u08 h);
 extern void console_rect(console_t *c, u08 ch, u08 x, u08 y, u08 w, u08 h);
-extern void console_goto(console_t *c, u08 x, u08 y);
+extern void console_grid(console_t *c, u08 t, u08 x, u08 y, u08 nx, u08 ny, u08 dx, u08 dy);
 
 #endif
