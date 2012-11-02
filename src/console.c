@@ -29,6 +29,7 @@
 #include "global.h"
 #include "console.h"
 #include "screen.h"
+#include "draw.h"
 
 static console_t c = {
   .width = 40,
@@ -122,4 +123,17 @@ void console_putr(console_t *c, PGM_P pstr)
      console_putch(c, ch);
      pstr++;
    }
+}
+
+void console_border(console_t *c, u08 t, u08 x, u08 y, u08 w, u08 h)
+{
+  screen_update_color(c->color);
+  draw_border(t, x, y, w, h);
+}
+
+void console_rect(console_t *c, u08 ch, u08 x, u08 y, u08 w, u08 h)
+{
+  screen_update_flags(c->flags);
+  screen_update_color(c->color);
+  draw_rect(ch, x, y, w, h);
 }

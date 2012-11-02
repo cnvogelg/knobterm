@@ -80,7 +80,7 @@ SRC := $(BOARD).c
 SRC += util.c uart.c timer.c
 SRC += display.c fonts.c jog.c
 SRC += fat/fatfs.c fat/ff.c fat/mmc.c
-SRC += read.c console.c screen.c write.c 
+SRC += read.c console.c screen.c write.c draw.c
 SRC += command.c main.c
 
 # output format

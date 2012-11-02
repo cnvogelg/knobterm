@@ -55,10 +55,6 @@ void read_putch(u08 ch)
         command_parse(line, line_pos);
         /* start new command */
         line_pos = 0;
-      } else {
-        /* enter @ \n */
-        console_putch(console_get_current(),'@');
-        console_putch(console_get_current(),'\n');
       }
     }
     /* begin of a new command */

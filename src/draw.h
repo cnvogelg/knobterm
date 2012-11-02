@@ -1,5 +1,5 @@
 /*
- * console.h - console output
+ * draw.h - Graphics drawing with font
  *
  * Written by
  *  Christian Vogelgsang <chris@vogelgsang.org>
@@ -24,34 +24,12 @@
  *
  */
 
-#ifndef CONSOLE_H
-#define CONSOLE_H
+#ifndef DRAW_H
+#define DRAW_H
 
-#include <avr/pgmspace.h>
-
-typedef struct {
-  u08 width;
-  u08 height;
-  u08 top_x;
-  u08 top_y;
-  u08 cursor_x;
-  u08 cursor_y;
-  u08 color;
-  u08 flags;
-} console_t;
-
-extern void console_init(void);
-extern void console_welcome(void);
-
-extern void console_set_current(console_t *c);
-extern console_t *console_get_current(void);
-
-extern void console_clear(console_t *c);
-extern void console_putch(console_t *c,u08 ch);
-extern void console_newline(console_t *c);
-extern void console_next_char(console_t *c);
-extern void console_putr(console_t *c, PGM_P pstr);
-extern void console_border(console_t *c, u08 t, u08 x, u08 y, u08 w, u08 h);
-extern void console_rect(console_t *c, u08 ch, u08 x, u08 y, u08 w, u08 h);
+#include "global.h"
+   
+void draw_border(u08 style, u08 x, u08 y, u08 w, u08 h);
+void draw_rect(u08 ch, u08 x, u08 y, u08 w, u08 h);
 
 #endif

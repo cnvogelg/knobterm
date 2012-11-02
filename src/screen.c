@@ -88,7 +88,7 @@ void screen_erase(u08 x, u08 y, u08 w, u08 h, u08 col)
   display_draw_rect(xp,yp,wp,hp,bg);
 }
 
-void screen_putch(u08 x, u08 y, u08 ch, u08 col, u08 flags)
+void screen_update_color(u08 col)
 {
   /* update color */
   if(col != cur_col) {
@@ -96,7 +96,11 @@ void screen_putch(u08 x, u08 y, u08 ch, u08 col, u08 flags)
     cur_fg = palette[(col>>4) & 0xf];
     cur_bg = palette[col & 0xf];
     display_set_color(cur_fg, cur_bg);
-  }
+  }  
+}
+
+void screen_update_flags(u08 flags)
+{
   /* update flags */
   if(flags != cur_flags) {
     cur_flags = flags;
@@ -110,8 +114,21 @@ void screen_putch(u08 x, u08 y, u08 ch, u08 col, u08 flags)
       cur_font = font;
       display_set_font_data(font_table[cur_font]);
     }
-  }
+  }  
+}
+
+void screen_putch(u08 x, u08 y, u08 ch, u08 col, u08 flags)
+{
+  screen_update_color(col);
+  screen_update_flags(flags);
   
+  u16 xp = x << 3;
+  u16 yp = y << 3;
+  display_draw_char(xp,yp,ch);
+}
+
+void screen_putc(u08 x, u08 y, u08 ch)
+{  
   u16 xp = x << 3;
   u16 yp = y << 3;
   display_draw_char(xp,yp,ch);

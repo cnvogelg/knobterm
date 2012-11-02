@@ -57,5 +57,8 @@ extern void screen_init(void);
 extern void screen_clear(u08 col);
 extern void screen_erase(u08 x, u08 y, u08 w, u08 h, u08 col);
 extern void screen_putch(u08 x, u08 y, u08 ch, u08 col, u08 flags);
+extern void screen_putc(u08 x, u08 y, u08 ch);
+extern void screen_update_flags(u08 flags);
+extern void screen_update_color(u08 col);
 
 #endif

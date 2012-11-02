@@ -144,6 +144,83 @@ static u08 flags(const u08 *cmd, u08 len)
   return CMD_OK;
 }
 
+u08 border(const u08 *cmd, u08 len)
+{
+  if(len != 10) {
+    return CMD_SYNTAX_ERR;
+  }
+  
+  u08 t,x,y,w,h;
+  
+  switch(cmd[1]) {
+    case 'A': t=0; break;
+    case 'B': t=1; break;
+    case 'C': t=2; break;
+    default: return CMD_SYNTAX_ERR;
+  }
+  if(!parse_byte(cmd+2,&x)) {
+    return CMD_NO_BYTE;
+  }
+  if(!parse_byte(cmd+4,&y)) {
+    return CMD_NO_BYTE;
+  }
+  if(!parse_byte(cmd+6,&w)) {
+    return CMD_NO_BYTE;
+  }
+  if(!parse_byte(cmd+8,&h)) {
+    return CMD_NO_BYTE;
+  }
+  
+  console_border(console_get_current(), t, x, y, w, h);
+  return CMD_OK;
+}
+
+u08 rect(const u08 *cmd, u08 len)
+{
+  if(len!=10) {
+    return CMD_SYNTAX_ERR;
+  }
+
+  u08 t,x,y,w,h;
+  
+  t = cmd[1];
+  if(!parse_byte(cmd+2,&x)) {
+    return CMD_NO_BYTE;
+  }
+  if(!parse_byte(cmd+4,&y)) {
+    return CMD_NO_BYTE;
+  }
+  if(!parse_byte(cmd+6,&w)) {
+    return CMD_NO_BYTE;
+  }
+  if(!parse_byte(cmd+8,&h)) {
+    return CMD_NO_BYTE;
+  }
+  
+  console_rect(console_get_current(), t, x, y, w, h);
+  return CMD_OK;
+}
+
+u08 draw(const u08 *cmd, u08 len)
+{
+  u08 result = 0;
+  switch(cmd[1]) {
+    case 'b':
+      result = border(cmd+1,len-1);
+      break;
+    case 'r':
+      result = rect(cmd+1,len-1);
+      break;
+    default:
+      return CMD_UNKNOWN_ERR;
+  }
+  /* always reply draw commands as they could take some time to complete */
+  if(result == 0) {
+    reply('d',0);
+  }
+  return result;
+}
+
 void command_parse(const u08 *cmd, u08 len)
 {
   u08 result = 0;
@@ -156,6 +233,9 @@ void command_parse(const u08 *cmd, u08 len)
       break;
     case 'f':
       result = flags(cmd, len);
+      break;
+    case 'd':
+      result = draw(cmd, len);
       break;
     default:
       result = CMD_UNKNOWN_ERR;
