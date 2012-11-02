@@ -37,6 +37,16 @@ class KnobTerm:
       line += c
     return line.decode('latin-1')
 
+  def goto(self, x, y):
+    cmd = "@g%02x%02x;" % (x,y)
+    self.write(cmd)
+
+  def erase(self, col):
+    cmd = "@e%x;" % (col)
+    self.write(cmd)
+    res = self.read_line()
+    return res == "@e00"
+
   def draw_border(self, type, x, y, w, h, col):
     cmd = "@c%02x@db%c%02x%02x%02x%02x;" % (col, chr(65+type),x,y,w,h)
     self.write(cmd)
@@ -48,3 +58,4 @@ class KnobTerm:
     self.write(cmd)
     res = self.read_line()
     return res == "@d00"
+

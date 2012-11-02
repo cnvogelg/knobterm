@@ -46,7 +46,7 @@ static console_t *cur_console = &c;
 void console_init(void)
 {
   cur_console = &c;
-  console_clear(cur_console);
+  console_clear(cur_console, cur_console->color);
 }
 
 void console_welcome(void)
@@ -64,11 +64,11 @@ console_t *console_get_current(void)
   return cur_console;
 }
 
-void console_clear(console_t *c)
+void console_clear(console_t *c, u08 col)
 {
   c->cursor_x = 0;
   c->cursor_y = 0;
-  screen_erase(c->top_x, c->top_y, c->width, c->height, c->color);
+  screen_erase(c->top_x, c->top_y, c->width, c->height, col);
 }
 
 void console_newline(console_t *c)
@@ -137,3 +137,16 @@ void console_rect(console_t *c, u08 ch, u08 x, u08 y, u08 w, u08 h)
   screen_update_color(c->color);
   draw_rect(ch, x, y, w, h);
 }
+
+void console_goto(console_t *c, u08 x, u08 y)
+{
+  if(x >= c->width) {
+    x = c->width - 1;
+  }
+  if(y >= c->height) {
+    y = c->height - 1;
+  }
+  c->cursor_x = x;
+  c->cursor_y = y;
+}
+

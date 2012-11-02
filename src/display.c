@@ -391,9 +391,10 @@ void display_draw_rect(u16 x, u16 y, u16 w, u16 h, u16 col)
 {
   display_set_area(x,y,x+w-1,y+h-1);
   display_draw_start();
-  u16 num = w * h;
-  for(u16 i=0;i<num;i++) {
-    display_draw_pixel( col );
+  for(u16 j=0;j<h;j++) {
+    for(u16 i=0;i<w;i++) {
+      display_draw_pixel( col );
+    }
   }
   display_draw_stop();
 }

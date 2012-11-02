@@ -10,6 +10,8 @@ kt = knobterm.KnobTerm(serial_port)
 v = kt.get_version()
 print("version",v)
 
+kt.erase(0x8)
+
 # test some commands
 kt.write("@fn;normal\n@fx;dbl x\n@fy;dbl y\n@fb;dbl xy\n@fn;")
 for a in range(16):
@@ -19,6 +21,7 @@ for a in range(16):
   cmd = "@c0%x;#" % a
   kt.write(cmd)
 
+# test gfx
 kt.draw_border(0, 0, 11, 4, 4, 0xf0)
 kt.draw_border(1, 6, 11, 4, 4, 0xe0)
 kt.draw_border(2, 12, 11, 4, 4, 0xd0)
@@ -26,5 +29,9 @@ kt.draw_border(2, 12, 11, 4, 4, 0xd0)
 kt.draw_rect('!', 1,12,4,4, 0xf)
 kt.draw_rect(' ', 7,12,4,4, 0xe)
 kt.draw_rect('o', 13,12,4,4, 0xd)
+
+# movement
+kt.goto(0,29)
+kt.write("move")
 
 kt.close()

@@ -67,7 +67,7 @@ static void version(void)
   write_end();
 }
 
-static u08 color(const u08 *cmd, u08 len)
+static u08 cmd_color(const u08 *cmd, u08 len)
 {
   if(len>3) {
     return CMD_SYNTAX_ERR;
@@ -98,7 +98,7 @@ static u08 color(const u08 *cmd, u08 len)
   return CMD_OK;
 }
 
-static u08 flags(const u08 *cmd, u08 len)
+static u08 cmd_flags(const u08 *cmd, u08 len)
 {  
   console_t *c = console_get_current();
 
@@ -144,7 +144,7 @@ static u08 flags(const u08 *cmd, u08 len)
   return CMD_OK;
 }
 
-u08 border(const u08 *cmd, u08 len)
+static u08 cmd_draw_border(const u08 *cmd, u08 len)
 {
   if(len != 10) {
     return CMD_SYNTAX_ERR;
@@ -175,7 +175,7 @@ u08 border(const u08 *cmd, u08 len)
   return CMD_OK;
 }
 
-u08 rect(const u08 *cmd, u08 len)
+static u08 cmd_draw_rect(const u08 *cmd, u08 len)
 {
   if(len!=10) {
     return CMD_SYNTAX_ERR;
@@ -201,15 +201,15 @@ u08 rect(const u08 *cmd, u08 len)
   return CMD_OK;
 }
 
-u08 draw(const u08 *cmd, u08 len)
+static u08 cmd_draw(const u08 *cmd, u08 len)
 {
   u08 result = 0;
   switch(cmd[1]) {
     case 'b':
-      result = border(cmd+1,len-1);
+      result = cmd_draw_border(cmd+1,len-1);
       break;
     case 'r':
-      result = rect(cmd+1,len-1);
+      result = cmd_draw_rect(cmd+1,len-1);
       break;
     default:
       return CMD_UNKNOWN_ERR;
@@ -221,6 +221,45 @@ u08 draw(const u08 *cmd, u08 len)
   return result;
 }
 
+static u08 cmd_goto(const u08 *cmd, u08 len)
+{
+  if(len > 5) {
+    return CMD_SYNTAX_ERR;
+  }
+  
+  u08 x,y;
+  if(!parse_byte(cmd+1,&x)) {
+    return CMD_NO_BYTE;
+  }
+  if(!parse_byte(cmd+3,&y)) {
+    return CMD_NO_BYTE;
+  }
+  
+  console_t *c = console_get_current();
+  console_goto(c, x, y);
+  return CMD_OK;
+}
+
+static u08 cmd_erase(const u08 *cmd, u08 len)
+{
+  if(len > 2) {
+    return CMD_SYNTAX_ERR;
+  }
+  
+  u08 col = 0;
+  if(len == 2) {
+    if(!parse_nybble(cmd[1],&col)) {
+      return CMD_NO_NYBBLE;
+    }
+  }
+  
+  console_t *c = console_get_current();
+  console_clear(c, col);
+  
+  reply(cmd[0],0);
+  return CMD_OK;
+}
+
 void command_parse(const u08 *cmd, u08 len)
 {
   u08 result = 0;
@@ -229,13 +268,19 @@ void command_parse(const u08 *cmd, u08 len)
       version();
       break;
     case 'c':
-      result = color(cmd,len);
+      result = cmd_color(cmd,len);
       break;
     case 'f':
-      result = flags(cmd, len);
+      result = cmd_flags(cmd, len);
       break;
     case 'd':
-      result = draw(cmd, len);
+      result = cmd_draw(cmd, len);
+      break;
+    case 'g':
+      result = cmd_goto(cmd, len);
+      break;
+    case 'e':
+      result = cmd_erase(cmd, len);
       break;
     default:
       result = CMD_UNKNOWN_ERR;
