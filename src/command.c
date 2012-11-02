@@ -59,11 +59,18 @@ static void reply(u08 cmd, u08 num)
   write_end();
 }
 
-static void version(void)
+static void cmd_version(void)
 {
   write_begin();
   write_cmd('v');
   write_pstr(PSTR(VERSION));
+  write_end();
+}
+
+static void cmd_sync(void)
+{
+  write_begin();
+  write_cmd('s');
   write_end();
 }
 
@@ -291,7 +298,7 @@ void command_parse(const u08 *cmd, u08 len)
   u08 result = 0;
   switch(cmd[0]) {
     case 'v':
-      version();
+      cmd_version();
       break;
     case 'c':
       result = cmd_color(cmd,len);
@@ -307,6 +314,9 @@ void command_parse(const u08 *cmd, u08 len)
       break;
     case 'e':
       result = cmd_erase(cmd, len);
+      break;
+    case 's':
+      cmd_sync();
       break;
     default:
       result = CMD_UNKNOWN_ERR;

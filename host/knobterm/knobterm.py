@@ -37,8 +37,41 @@ class KnobTerm:
       line += c
     return line.decode('latin-1')
 
+  def sync(self):
+    self.write('@s;')
+    res = self.read_line()
+    return res == '@s'
+
   def goto(self, x, y):
     cmd = "@g%02x%02x;" % (x,y)
+    self.write(cmd)
+    
+  def color_fg(self, fg):
+    cmd = "@c%x;" % (fg)
+    self.write(cmd)
+    
+  def color(self, fg, bg):
+    cmd = "@c%x%x;" % (fg, bg)
+    self.write(cmd)
+
+  def flags(self, f):
+    cmd = "@f%02x;" % (f)
+    self.write(cmd)
+    
+  def font_scale(self, x, y):
+    n = 'n'
+    if x and y:
+      n = 'b'
+    elif x:
+      n = 'x'
+    elif y:
+      n = 'y'
+    cmd = "@f%s;" % n
+    self.write(cmd)
+
+  def font_map(self, num):
+    n = chr(65 + num)
+    cmd = "$@f%s;" % n
     self.write(cmd)
 
   def erase(self, col):
@@ -47,20 +80,20 @@ class KnobTerm:
     res = self.read_line()
     return res == "@e00"
 
-  def draw_border(self, type, x, y, w, h, col):
-    cmd = "@c%02x@db%c%02x%02x%02x%02x;" % (col, chr(65+type),x,y,w,h)
+  def draw_border(self, type, x, y, w, h):
+    cmd = "@db%c%02x%02x%02x%02x;" % (chr(65+type),x,y,w,h)
     self.write(cmd)
     res = self.read_line()
     return res == "@d00"
   
-  def draw_rect(self, ch, x, y, w, h, col):
-    cmd = "@c%02x@dr%c%02x%02x%02x%02x;" % (col,ch,x,y,w,h)
+  def draw_rect(self, ch, x, y, w, h):
+    cmd = "@dr%c%02x%02x%02x%02x;" % (ch,x,y,w,h)
     self.write(cmd)
     res = self.read_line()
     return res == "@d00"
   
-  def draw_grid(self, type, x, y, nx, ny, dx, dy, col):
-    cmd = "@c%02x@dg%c%02x%02x%02x%02x%02x%02x;" % (col, chr(65+type),x,y,nx,ny,dx,dy)
+  def draw_grid(self, type, x, y, nx, ny, dx, dy):
+    cmd = "@dg%c%02x%02x%02x%02x%02x%02x;" % (chr(65+type),x,y,nx,ny,dx,dy)
     self.write(cmd)
     res = self.read_line()
     return res == "@d00"
