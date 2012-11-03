@@ -29,13 +29,13 @@
 #include "timer.h"
 #include "display.h"
 #include "fat/fatfs.h"
-#include "jog.h"
 #include "util.h"
    
 #include "read.h"
 #include "console.h"
 #include "screen.h"
 #include "command.h"
+#include "input.h"
 
 static void read_image(void)
 {
@@ -78,8 +78,8 @@ void init(void)
   // setup serial
   uart_init();
 
-  // jog init
-  jog_init();
+  // input init
+  input_init();
   // display init()
   display_init(2);
   
@@ -110,6 +110,7 @@ int main(void)
   // main loop
   while(1) {
     read_serial();
+    input_handler();
   }
   return 0;
 }

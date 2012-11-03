@@ -30,6 +30,7 @@
 #include "console.h"
 #include "util.h"
 #include "screen.h"
+#include "input.h"
 
 #define CMD_OK          0
 #define CMD_SYNTAX_ERR  1
@@ -293,6 +294,24 @@ static u08 cmd_erase(const u08 *cmd, u08 len)
   return CMD_OK;
 }
 
+static u08 cmd_input(const u08 *cmd, u08 len)
+{
+  switch(cmd[1]) {
+    case 'b':
+      input_start();
+      break;
+    case 'e':
+      input_stop();
+      break;
+    case 's':
+      input_single();
+      break;
+    default:
+      return CMD_UNKNOWN_ERR;
+  }
+  return CMD_OK;
+}
+
 void command_parse(const u08 *cmd, u08 len)
 {
   u08 result = 0;
@@ -317,6 +336,9 @@ void command_parse(const u08 *cmd, u08 len)
       break;
     case 's':
       cmd_sync();
+      break;
+    case 'i':
+      result = cmd_input(cmd, len);
       break;
     default:
       result = CMD_UNKNOWN_ERR;
