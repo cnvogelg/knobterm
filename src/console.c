@@ -144,6 +144,20 @@ void console_grid(console_t *c, u08 t, u08 x, u08 y, u08 nx, u08 ny, u08 dx, u08
   draw_grid(t, x, y, nx, ny, dx, dy);
 }
 
+void console_h_line(console_t *c, u08 ch, u08 x, u08 y, u08 len)
+{
+  screen_update_flags(c->flags);
+  screen_update_color(c->color);
+  draw_h_line(ch, x, y, len);
+}  
+
+void console_v_line(console_t *c, u08 ch, u08 x, u08 y, u08 len)
+{
+  screen_update_flags(c->flags);
+  screen_update_color(c->color);
+  draw_v_line(ch, x, y, len);
+}  
+
 void console_goto(console_t *c, u08 x, u08 y)
 {
   if(x >= c->width) {

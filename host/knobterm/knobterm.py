@@ -97,5 +97,18 @@ class KnobTerm:
     self.write(cmd)
     res = self.read_line()
     return res == "@d00"
-    
+  
+  def draw_h_line(self, ch, x, y, l):
+    cmd = "@dh%c%02x%02x%02x;" % (ch, x, y, l)
+    self.write(cmd)
+    res = self.read_line()
+    return res == "@d00"
+
+  def draw_v_line(self, ch, x, y, l):
+    cmd = "@dv%c%02x%02x%02x;" % (ch, x, y, l)
+    self.write(cmd)
+    res = self.read_line()
+    return res == "@d00"
+  
+  
 

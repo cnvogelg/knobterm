@@ -56,5 +56,7 @@ extern void console_goto(console_t *c, u08 x, u08 y);
 extern void console_border(console_t *c, u08 t, u08 x, u08 y, u08 w, u08 h);
 extern void console_rect(console_t *c, u08 ch, u08 x, u08 y, u08 w, u08 h);
 extern void console_grid(console_t *c, u08 t, u08 x, u08 y, u08 nx, u08 ny, u08 dx, u08 dy);
+extern void console_h_line(console_t *c, u08 ch, u08 x, u08 y, u08 len);
+extern void console_v_line(console_t *c, u08 ch, u08 x, u08 y, u08 len);
 
 #endif

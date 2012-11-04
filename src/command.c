@@ -232,6 +232,32 @@ static u08 cmd_draw_grid(const u08 *cmd, u08 len)
   return CMD_OK;
 }
 
+static u08 cmd_draw_line(const u08 *cmd, u08 len)
+{
+  // syntax (h|v)<char><b:x><b:y><b:len>
+  if(len < 8) {
+    return CMD_SYNTAX_ERR;
+  }
+  
+  u08 mode = cmd[0];
+  u08 ch = cmd[1];
+
+  // parse coords
+  u08 res = parse_vals(cmd+2,3);
+  if(res != CMD_OK) {
+    return res;
+  }
+  
+  console_t *c = console_get_current();
+  if(mode == 'h') {
+    console_h_line(c, ch, vals[0], vals[1], vals[2]);
+  }
+  else {
+    console_v_line(c, ch, vals[0], vals[1], vals[2]);    
+  }
+  return CMD_OK;
+}
+
 static u08 cmd_draw(const u08 *cmd, u08 len)
 {
   u08 result = 0;
@@ -244,6 +270,10 @@ static u08 cmd_draw(const u08 *cmd, u08 len)
       break;
     case 'g':
       result = cmd_draw_grid(cmd+1,len-1);
+      break;
+    case 'h':
+    case 'v':
+      result = cmd_draw_line(cmd+1, len-1);
       break;
     default:
       return CMD_UNKNOWN_ERR;

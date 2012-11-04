@@ -51,6 +51,11 @@ kt.draw_rect('o', 13,12,4,4)
 kt.color_fg(0xc)
 kt.draw_grid(0, 20,10, 4,4, 1, 1)
 
+kt.color_fg(0x1)
+kt.draw_h_line('*', 0, 28, 10)
+kt.color_fg(0x2)
+kt.draw_v_line('#', 38, 0, 20)
+
 # movement
 kt.goto(0,29)
 kt.write("move")

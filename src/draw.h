@@ -32,5 +32,7 @@
 void draw_border(u08 style, u08 x, u08 y, u08 w, u08 h);
 void draw_rect(u08 ch, u08 x, u08 y, u08 w, u08 h);
 void draw_grid(u08 type, u08 x, u08 y, u08 nx, u08 ny, u08 dx, u08 dy);
+void draw_h_line(u08 ch, u08 x, u08 y, u08 w);
+void draw_v_line(u08 ch, u08 x, u08 y, u08 w);
 
 #endif

@@ -135,3 +135,20 @@ void draw_grid(u08 type, u08 x, u08 y, u08 nx, u08 ny, u08 dx, u08 dy)
   /* bot row */
   draw_grid_span(x, y, nx, dx, bc[2], bc[5], bc[3], gc[1]);
 }
+
+void draw_h_line(u08 ch, u08 x, u08 y, u08 w)
+{
+  for(u08 i=0;i<w;i++) {
+    screen_putc(x, y, ch);
+    x++;
+  }
+}
+
+void draw_v_line(u08 ch, u08 x, u08 y, u08 h)
+{
+  for(u08 i=0;i<h;i++) {
+    screen_putc(x, y, ch);
+    y++;
+  }
+}
+
