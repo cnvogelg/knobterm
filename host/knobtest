@@ -1,13 +1,19 @@
-#!/usr/bin/env python3.2
+#!/usr/bin/env python2.7
 #
 # knobtest - a test program for the knobterm box
 #
 
 import knobterm
+import knobemu
 import time
+import sys
 
-serial_port = "/dev/cu.usbserial-A700fjkF"
-kt = knobterm.KnobTerm(serial_port)
+if len(sys.argv) > 1:
+  serial_port = sys.argv[2]
+  kt = knobterm.KnobTerm(serial_port)
+else:
+  kt = knobemu.KnobEmu()
+
 v = kt.get_version()
 print("version",v)
 
@@ -16,27 +22,27 @@ kt.erase(0x8)
 
 # font scaling
 kt.font_scale(False, False)
-kt.write("normal\n")
+kt.text("normal\n")
 kt.font_scale(True, False)
-kt.write("dbl_x\n")
+kt.text("dbl_x\n")
 kt.font_scale(False, True)
-kt.write("dbl_y\n")
+kt.text("dbl_y\n")
 kt.font_scale(True, True)
-kt.write("dbl_xy\n")
+kt.text("dbl_xy\n")
 kt.font_scale(False, False)
 
 # font color
 for a in range(16):
   kt.color_fg(a)
-  kt.write('*')
-kt.write('\n')
+  kt.text('*')
+kt.text('\n')
 for a in range(16):
   kt.color(0,a)
-  kt.write('#')
-kt.write('\n')
+  kt.text('#')
+kt.text('\n')
 
 # test gfx
-kt.color_fg(0xf)
+kt.color(0xf,0)
 kt.draw_border(0, 0, 11, 4, 4)
 kt.draw_rect('!', 1,12,4,4)
 
@@ -58,15 +64,18 @@ kt.draw_v_line('#', 38, 0, 20)
 
 # movement
 kt.goto(0,29)
-kt.write("move")
+kt.text("move")
 
 # sync draw
 for x in range(10):
   kt.goto(0,27)
-  kt.write("%02d" % x)
+  kt.text("%02d" % x)
   kt.goto(x,26)
-  kt.write(" hello, world! ")
+  kt.text(" hello, world! ")
   kt.sync()
   time.sleep(0.1)
+
+while not kt.handle_events():
+  pass
 
 kt.close()

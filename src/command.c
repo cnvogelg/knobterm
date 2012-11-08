@@ -94,14 +94,14 @@ static u08 cmd_color(const u08 *cmd, u08 len)
       if(!parse_nybble(cmd[1], &color)) {
         return CMD_NO_NYBBLE;
       }
-      color <<= 4;
+      c->color = (color << 4) | (c->color & 0xf);
     } else {
       /* set both colors */
       if(!parse_byte(cmd+1, &color)) {
         return CMD_NO_BYTE;
       }
+      c->color = color;
     }
-    c->color = color;
   }
   return CMD_OK;
 }
