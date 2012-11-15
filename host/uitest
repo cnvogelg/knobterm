@@ -1,0 +1,37 @@
+#!/usr/bin/env python2.7
+#
+# knobtest - a test program for the knobterm box
+#
+
+import knobterm
+import knobemu
+import knobui
+import time
+import sys
+import random
+
+if len(sys.argv) > 1:
+  serial_port = sys.argv[2]
+  kt = knobterm.KnobTerm(serial_port)
+else:
+  kt = knobemu.KnobEmu()
+
+(w,h) = kt.get_size()
+
+l = knobui.Label(0,0,w,"pifon",align=knobui.Label.ALIGN_CENTER, scale=knobui.Label.SCALE_XY)
+l.draw(kt)
+
+g = knobui.Gauge(0,2,w,3)
+g.draw(kt, True)
+
+e = (
+  "Enable",
+  "Disable"
+)
+l = knobui.List(5,10,w-10,"Menu",e)
+l.draw(kt)
+
+for i in range(100):
+  g.set_value(random.randint(0,100))
+  g.draw(kt)
+  time.sleep(0.5)

@@ -52,6 +52,9 @@ class KnobEmu:
   def get_version(self):
     return "1.0"
   
+  def get_size(self):
+    return (40,30)
+  
   def text(self, t):
     f= self.fonts[self.fi]
     for ch in t:
@@ -72,22 +75,22 @@ class KnobEmu:
     self.cx = x
     self.cy = y
     
-  def color_fg(self, fg):
+  def set_color_fg(self, fg):
     self.fg = fg
     for f in self.fonts:
       f.set_color(palette.Palette,self.fg, self.bg)
       
-  def color(self, fg, bg):
+  def set_color(self, fg, bg):
     self.fg = fg
     self.bg = bg
     for f in self.fonts:
       f.set_color(palette.Palette,self.fg, self.bg)
 
-  def flags(self, f):
+  def set_flags(self, f):
     # todo
     pass
     
-  def font_scale(self, x, y):
+  def set_font_scale(self, x, y):
     for f in self.fonts:
       f.set_scale(x, y)
     if x:
@@ -99,7 +102,7 @@ class KnobEmu:
     else:
       self.fy = 1
 
-  def font_map(self, num):
+  def set_font_map(self, num):
     self.fi = num
 
   def erase(self, col):

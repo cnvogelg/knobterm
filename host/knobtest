@@ -21,45 +21,45 @@ print("version",v)
 kt.erase(0x8)
 
 # font scaling
-kt.font_scale(False, False)
+kt.set_font_scale(False, False)
 kt.text("normal\n")
-kt.font_scale(True, False)
+kt.set_font_scale(True, False)
 kt.text("dbl_x\n")
-kt.font_scale(False, True)
+kt.set_font_scale(False, True)
 kt.text("dbl_y\n")
-kt.font_scale(True, True)
+kt.set_font_scale(True, True)
 kt.text("dbl_xy\n")
-kt.font_scale(False, False)
+kt.set_font_scale(False, False)
 
 # font color
 for a in range(16):
-  kt.color_fg(a)
+  kt.set_color_fg(a)
   kt.text('*')
 kt.text('\n')
 for a in range(16):
-  kt.color(0,a)
+  kt.set_color(0,a)
   kt.text('#')
 kt.text('\n')
 
 # test gfx
-kt.color(0xf,0)
+kt.set_color(0xf,0)
 kt.draw_border(0, 0, 11, 4, 4)
 kt.draw_rect('!', 1,12,4,4)
 
-kt.color_fg(0xe)
+kt.set_color_fg(0xe)
 kt.draw_border(1, 6, 11, 4, 4)
 kt.draw_rect(' ', 7,12,4,4)
 
-kt.color_fg(0xd)
+kt.set_color_fg(0xd)
 kt.draw_border(2, 12, 11, 4, 4)
 kt.draw_rect('o', 13,12,4,4)
 
-kt.color_fg(0xc)
+kt.set_color_fg(0xc)
 kt.draw_grid(0, 20,10, 4,4, 1, 1)
 
-kt.color_fg(0x1)
+kt.set_color_fg(0x1)
 kt.draw_h_line('*', 0, 28, 10)
-kt.color_fg(0x2)
+kt.set_color_fg(0x2)
 kt.draw_v_line('#', 38, 0, 20)
 
 # movement

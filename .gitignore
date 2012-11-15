@@ -1,2 +1,3 @@
 BUILD
 __pycache__
+*.pyc

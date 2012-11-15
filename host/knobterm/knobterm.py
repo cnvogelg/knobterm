@@ -39,6 +39,10 @@ class KnobTerm:
     else:
       return None
   
+  def get_size(self):
+    # TODO
+    return (40,30)
+  
   def text(self, t):
     t = t.replace('@','@@')
     self._write(t)
@@ -52,19 +56,19 @@ class KnobTerm:
     cmd = "@g%02x%02x;" % (x,y)
     self._write(cmd)
     
-  def color_fg(self, fg):
+  def set_color_fg(self, fg):
     cmd = "@c%x;" % (fg)
     self._write(cmd)
     
-  def color(self, fg, bg):
+  def set_color(self, fg, bg):
     cmd = "@c%x%x;" % (fg, bg)
     self._write(cmd)
 
-  def flags(self, f):
+  def set_flags(self, f):
     cmd = "@f%02x;" % (f)
     self._write(cmd)
     
-  def font_scale(self, x, y):
+  def set_font_scale(self, x, y):
     n = 'n'
     if x and y:
       n = 'b'
@@ -75,7 +79,7 @@ class KnobTerm:
     cmd = "@f%s;" % n
     self._write(cmd)
 
-  def font_map(self, num):
+  def set_font_map(self, num):
     n = chr(65 + num)
     cmd = "$@f%s;" % n
     self._write(cmd)
