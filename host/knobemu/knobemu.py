@@ -3,6 +3,7 @@ import font
 import palette
 import draw
 import os
+import time
 
 class KnobEmu:
   """The KnobTerm emulator"""
@@ -35,9 +36,6 @@ class KnobEmu:
         raise IOError("font not found: "+font_path)
       fo = font.Font(font_path, self.display.screen)
       self.fonts.append(fo)
-
-  def handle_events(self):
-    return self.display.handle_events()
 
   def _newline(self):
     self.cx = 0
@@ -128,3 +126,15 @@ class KnobEmu:
   def draw_v_line(self, ch, x, y, l):
     draw.draw_v_line(self.draw_font, ord(ch), x, y, l)
     self.display.show()
+
+  # event handling
+  
+  min_poll_interval = 0.1
+  
+  def get_next_event(self, timeout=0):
+    """return the next event or None if no event is available"""
+    return self.display.get_next_event()
+
+  def wait_for_event(self):
+    """wait until an event occurs and return it"""
+    return self.display.wait_for_event()

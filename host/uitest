@@ -28,10 +28,13 @@ e = (
   "Enable",
   "Disable"
 )
-l = knobui.List(5,10,w-10,"Menu",e)
-l.draw(kt)
+m = knobui.Menu(5,10,w-10,"Menu",e)
+i = m.pick(kt)
 
-for i in range(100):
+# simulate a main loop
+while True:
   g.set_value(random.randint(0,100))
   g.draw(kt)
-  time.sleep(0.5)
+  ev = kt.get_next_event(0.1)
+  if ev == 'q':
+    break

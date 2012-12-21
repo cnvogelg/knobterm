@@ -26,8 +26,8 @@ class Gauge:
     y = self.y
     
     # in full mode draw border
+    gc.set_color(COLOR_LIGHT_GREY, COLOR_BLACK)
     if full:
-      gc.set_color(COLOR_LIGHT_GREY, COLOR_BLACK)
       gc.draw_border(0,x,y,w,h)
       self.last_filled = 0
 

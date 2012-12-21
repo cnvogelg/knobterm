@@ -75,7 +75,12 @@ for x in range(10):
   kt.sync()
   time.sleep(0.1)
 
-while not kt.handle_events():
-  pass
+# wait until quit event arrives
+while True:
+  ev = kt.wait_for_event()
+  if ev == 'q':
+    break
+  else:
+    print("event",ev) 
 
 kt.close()

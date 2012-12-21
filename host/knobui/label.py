@@ -33,6 +33,18 @@ class Label:
     self.pos = x
     self.set_text(text)
     
+  def set_color(self, fg=None, bg=None):
+    if fg != None:
+      self.fg = fg
+    if bg != None:
+      self.bg = bg  
+  
+  def invert(self):
+    fg = self.bg
+    bg = self.fg
+    self.fg = fg
+    self.bg = bg
+  
   def set_text(self, text):
     n = len(text)
     # crop?
