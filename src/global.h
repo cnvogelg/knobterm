@@ -38,6 +38,10 @@ typedef   signed long  s32;
 typedef unsigned long long u64;
 typedef   signed long long s64;
 
+#include <avr/pgmspace.h>
+
+typedef uint8_t PROGMEM prog_uint8_t;
+
 // project/system dependent defines
 
 // CPU clock speed -> now defined in Makefile

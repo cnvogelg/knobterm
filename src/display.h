@@ -27,7 +27,6 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include <avr/pgmspace.h>
 #include "global.h"
 
 #define DISPLAY_ORIENTATION_0           0
