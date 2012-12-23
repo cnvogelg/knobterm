@@ -399,3 +399,9 @@ void display_draw_rect(u16 x, u16 y, u16 w, u16 h, u16 col)
   display_draw_stop();
 }
 
+void display_get_size(u08 *w, u08 *h)
+{
+  // fixed for now
+  *w = 40;
+  *h = 30;
+}

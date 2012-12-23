@@ -133,3 +133,8 @@ void screen_putc(u08 x, u08 y, u08 ch)
   u16 yp = y << 3;
   display_draw_char(xp,yp,ch);
 }
+
+void screen_get_size(u08 *w, u08 *h)
+{
+  display_get_size(w,h);
+}

@@ -1,4 +1,5 @@
 import pygame
+import time
 
 class Display:
   def __init__(self):
@@ -17,6 +18,8 @@ class Display:
       event = self._parse_event(ev)
       if event != None:
         return event
+
+  min_poll_interval = 0.1
 
   def get_next_event(self, timeout=0):
     """return the next event or None if no event is available"""

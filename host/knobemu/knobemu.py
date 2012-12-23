@@ -3,7 +3,6 @@ import font
 import palette
 import draw
 import os
-import time
 
 class KnobEmu:
   """The KnobTerm emulator"""
@@ -129,12 +128,21 @@ class KnobEmu:
 
   # event handling
   
-  min_poll_interval = 0.1
+  def _make_event(self, t):
+    if t in ('+','-'):
+      return {'type':t,'value':1}
+    else:
+      return {'type':t,'value':0}
   
   def get_next_event(self, timeout=0):
     """return the next event or None if no event is available"""
-    return self.display.get_next_event()
+    t = self.display.get_next_event(timeout)
+    if t != None:
+      return self._make_event(t)
+    else:
+      return None
 
   def wait_for_event(self):
     """wait until an event occurs and return it"""
-    return self.display.wait_for_event()
+    t = self.display.wait_for_event()
+    return self._make_event(t)

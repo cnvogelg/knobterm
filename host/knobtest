@@ -3,19 +3,24 @@
 # knobtest - a test program for the knobterm box
 #
 
+from __future__ import print_function
+
 import knobterm
 import knobemu
 import time
 import sys
 
 if len(sys.argv) > 1:
-  serial_port = sys.argv[2]
-  kt = knobterm.KnobTerm(serial_port)
+  serial_port = sys.argv[1]
+  debug = len(sys.argv) > 2
+  kt = knobterm.KnobTerm(serial_port, debug=debug)
 else:
   kt = knobemu.KnobEmu()
 
 v = kt.get_version()
 print("version",v)
+(w,h) = kt.get_size()
+print("size",w,h)
 
 # erase screen
 kt.erase(0x8)
@@ -78,7 +83,8 @@ for x in range(10):
 # wait until quit event arrives
 while True:
   ev = kt.wait_for_event()
-  if ev == 'q':
+  t = ev['type']
+  if t in ('b', 'q'):
     break
   else:
     print("event",ev) 

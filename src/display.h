@@ -58,4 +58,6 @@ extern void display_set_font_scale(u08 x2, u08 y2);
 extern void display_draw_char(u16 x,u16 y,u08 ch);
 extern void display_draw_rect(u16 x, u16 y, u16 w, u16 h, u16 col);
 
+extern void display_get_size(u08 *w, u08 *h);
+
 #endif

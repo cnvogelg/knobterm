@@ -27,108 +27,175 @@
 #include "input.h"
 #include "jog.h"
 #include "write.h"
+#include "timer.h"
 
-#define MODE_NONE 0
-#define MODE_TRACK 1
-#define MODE_SINGLE 2
+#define EVENT_BUTTON_PRESS   'b'
+#define EVENT_BUTTON_REPEAT  'r'
+#define EVENT_JOG_UP         '+'
+#define EVENT_JOG_DOWN       '-'
+#define EVENT_OVERFLOW       '!'
 
-static u08 mode;
+#define MAX_EVENTS  16
+
+typedef struct {
+  u08 type;
+  u08 value;
+} event_t;
+
+static event_t event_queue[MAX_EVENTS];
+static u08 add_pos;
+static u08 get_pos;
+static u08 drops;
+static u08 wait_event_flag;
+static u16 wait_end_time;
+static u08 wait_delay;
 
 void input_init(void)
 {
   jog_init();
-  mode = MODE_NONE;
+  input_clear_queue();
 }
    
-void input_start(void)
+void input_clear_queue(void)
 {
-  mode = MODE_TRACK;
+  add_pos = 0;
+  get_pos = 0;
+  drops = 0;
 }
 
-void input_stop(void)
-{
-  mode = MODE_NONE;
-}
-
-void input_single(void)
-{
-  mode = MODE_SINGLE;
-}
-
-static void write_jog_event(int8_t val)
-{
-  u08 sign = '+';
-  if(val < 0) {
-    sign = '-';
-    val = -val;
-  }
-
-  // limit movement
-  if(val > 15) {
-    val = 15;
-  }
-  
+static void write_event(const event_t *ev)
+{  
   write_begin();
   write_cmd('i');
-  write_ch('j');
-  write_ch(sign);
-  write_hex_nybble(val);
+  write_ch(ev->type);
+  write_hex_byte(ev->value);
   write_end();  
 }
 
-static void write_button_event(u08 num, u08 cmd)
+static void write_no_event(void)
 {
   write_begin();
   write_cmd('i');
-  write_ch('b');
-  write_hex_nybble(num);
-  write_ch(cmd);
+  write_ch('?');
+  write_hex_byte(0);
   write_end();
 }
 
-static u08 check_jog(void)
+static void write_drops(u08 drops)
 {
-  // read jog wheel
-  int8_t jog = jog_read();
-  if(jog != 0) {
-    write_jog_event(jog);
-    return 1;
-  } else {
+  write_begin();
+  write_cmd('i');
+  write_ch('#');
+  write_hex_byte(drops);
+  write_end();
+}
+
+static event_t *get_next(void)
+{
+  if(add_pos == get_pos) {
     return 0;
+  } 
+  // get next event from queue
+  else {
+    event_t *ev = &event_queue[get_pos];
+    get_pos ++;
+    if(get_pos == MAX_EVENTS) {
+      get_pos = 0;
+    }
+    return ev;
   }
 }
 
-static u08 check_button(void)
+void input_get_next_event(void)
+{
+  // drops are reported first
+  if(drops) {
+    write_drops(drops);
+    drops = 0;
+  }
+  else {
+    event_t *ev = get_next();
+    // no more events
+    if(ev == 0) {
+      write_no_event();
+    } 
+    // get next event from queue
+    else {
+      write_event(ev);
+    }
+  }
+}
+
+void input_wait_for_next_event(u08 timeout_100ms)
+{
+  wait_event_flag = 1;
+  wait_delay = timeout_100ms;
+  wait_end_time = timer_10ms + timeout_100ms * 10;
+}
+
+static void add_event(u08 type, u08 value)
+{
+  // check for overflow
+  u08 next_pos = add_pos + 1;
+  if(next_pos == MAX_EVENTS) {
+    next_pos = 0;
+  }
+  if(next_pos == get_pos) {
+    drops ++;
+  }
+  // no overflow
+  else {
+    event_t * ev = &event_queue[add_pos];
+    ev->type = type;
+    ev->value = value;
+    add_pos = next_pos;
+  }
+}
+
+static void check_jog(void)
+{
+  // read jog wheel
+  int8_t jog = jog_read();
+  if(jog < 0) {
+    add_event(EVENT_JOG_DOWN, -jog);
+  }
+  else if(jog > 0) {
+    add_event(EVENT_JOG_UP, jog);
+  }
+}
+
+static void check_button(void)
 {
   u08 val = jog_button_press();
   if(val) {
-    write_button_event(0,'p');
-    return 1;
+    add_event(EVENT_BUTTON_PRESS, 0);
   }
   val = jog_button_repeat();
   if(val) {
-    write_button_event(0,'r');
-    return 1;
+    add_event(EVENT_BUTTON_REPEAT, 0);
   }
-  return 0;
 }
 
 void input_handler(void)
 {
-  if(mode != MODE_NONE) {
-    // check jog
-    if(check_jog()) {
-      if(mode == MODE_SINGLE) {
-        mode = MODE_NONE;
-        return;
+  check_jog();
+  check_button();
+  
+  // user is waiting for an event
+  if(wait_event_flag) {
+    // get next event
+    event_t *ev = get_next();
+    if(ev != 0) {
+      write_event(ev);
+      wait_event_flag = 0;
+    }
+    // check for time out
+    else if(wait_delay > 0) {
+      if(timer_10ms >= wait_end_time) {
+        write_no_event();
+        wait_event_flag = 0;
       }
     }
-    // check button
-    if(check_button()) {
-      if(mode == MODE_SINGLE) {
-        mode = MODE_NONE;
-        return;
-      }
-    }
+    
   }
 }

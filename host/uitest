@@ -3,6 +3,8 @@
 # knobtest - a test program for the knobterm box
 #
 
+from __future__ import print_function
+
 import knobterm
 import knobemu
 import knobui
@@ -11,8 +13,9 @@ import sys
 import random
 
 if len(sys.argv) > 1:
-  serial_port = sys.argv[2]
-  kt = knobterm.KnobTerm(serial_port)
+  serial_port = sys.argv[1]
+  debug = len(sys.argv) > 2
+  kt = knobterm.KnobTerm(serial_port, debug=debug)
 else:
   kt = knobemu.KnobEmu()
 
@@ -36,5 +39,8 @@ while True:
   g.set_value(random.randint(0,100))
   g.draw(kt)
   ev = kt.get_next_event(0.1)
-  if ev == 'q':
-    break
+  if ev != None:
+    if ev['type'] in ('b', 'q'):
+      break
+    else:
+      print(ev)

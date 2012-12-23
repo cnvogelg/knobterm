@@ -60,5 +60,6 @@ extern void screen_putch(u08 x, u08 y, u08 ch, u08 col, u08 flags);
 extern void screen_putc(u08 x, u08 y, u08 ch);
 extern void screen_update_flags(u08 flags);
 extern void screen_update_color(u08 col);
+extern void screen_get_size(u08 *w, u08 *h);
 
 #endif

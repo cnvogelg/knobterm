@@ -1,5 +1,5 @@
 /*
- * input.h - handle input and generate events
+ * cmd_query.h - query commands
  *
  * Written by
  *  Christian Vogelgsang <chris@vogelgsang.org>
@@ -24,15 +24,11 @@
  *
  */
 
-#ifndef INPUT_H
-#define INPUT_H
+#ifndef CMD_QUERY_H
+#define CMD_QUERY_H
 
 #include "global.h"
 
-extern void input_init(void);
-extern void input_handler(void);
-extern void input_get_next_event(void);
-extern void input_wait_for_next_event(u08 timeout_100ms);
-extern void input_clear_queue(void);
+extern u08 cmd_query(const u08 *cmd, u08 len);
 
 #endif

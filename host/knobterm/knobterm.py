@@ -1,16 +1,25 @@
+from __future__ import print_function
 import serial
 import time
 
 class KnobTerm:
-  def __init__(self, serial_port, serial_baud=57600, timeout=10, rtscts=0, dsrdtr=0, xonxoff=0):
+  def __init__(self, serial_port, serial_baud=57600, timeout=10, debug=False):
     """create and open the serial link to the knob term"""
     self.ser = serial.Serial(serial_port, serial_baud, timeout=timeout)
-    # reset and settle terminal
-    time.sleep(2)
+    self.debug = debug
+    # reset and wait for init command
+    l = self._read_line()
+    if l == None:
+      raise IOError("no reply from terminal")
+    if l != "@i":
+      raise IOError("invalid init reply")
   
   def _write(self, s):
     b = s.encode('latin-1')
     self.ser.write(b)
+    if self.debug:
+      o = s.replace('\n','\\n')
+      print("W: '%s'" % o)
     
   def _read_line(self, block=True):
     if not block:
@@ -32,20 +41,28 @@ class KnobTerm:
     self.ser.close()
   
   def get_version(self):
-    self._write("@v\n");
+    self._write("@qv\n")
     l = self._read_line()
-    if l.startswith("@v"):
-      return l[2:]
+    if l.startswith("@qv"):
+      return l[3:]
     else:
       return None
   
   def get_size(self):
-    # TODO
-    return (40,30)
+    self._write("@qs\n")
+    l = self._read_line()
+    # result: @qsWW,HH
+    if l.startswith("@qs"):
+      w = int(l[3:5],16)
+      h = int(l[6:8],16)
+      return (w,h)
+    else:
+      return None
   
   def text(self, t):
     t = t.replace('@','@@')
     self._write(t)
+    self.sync()
 
   def sync(self):
     self._write('@s;')
@@ -120,5 +137,35 @@ class KnobTerm:
     res = self._read_line()
     return res == "@d00"
   
+  # input query
   
+  def _parse_event(self, line):
+    if not line.startswith('@i'):
+      raise IOError("Invalid event")
+    if len(line) != 5:
+      raise IOError("Invalid event")
+    t = line[2]
+    v = int(line[3:])
+    if t == '?':
+      return None
+    else:
+      return {'type':t,'value':v}
+  
+  def get_next_event(self, timeout=0):
+    if timeout == 0:
+      cmd = "@ig;"
+    else:
+      t = int(timeout * 10) # in 100ms units
+      if t > 255:
+        t = 255
+      cmd = "@iw%02x;" % t
+    self._write(cmd)
+    res = self._read_line()
+    return self._parse_event(res)
+
+  def wait_for_event(self):
+    cmd = "@iw00;"
+    self._write(cmd)
+    res = self._read_line()
+    return self._parse_event(res)
 

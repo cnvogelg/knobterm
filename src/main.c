@@ -32,6 +32,7 @@
 #include "util.h"
    
 #include "read.h"
+#include "write.h"
 #include "console.h"
 #include "screen.h"
 #include "command.h"
@@ -94,6 +95,13 @@ void init(void)
   command_init();
 }
 
+static void write_init_done(void)
+{
+  write_begin();
+  write_cmd('i');
+  write_end();
+}
+
 int main(void)
 {  
   init();
@@ -105,7 +113,10 @@ int main(void)
     fatfs_umount();
   }
 
-  console_welcome();
+  //console_welcome();
+
+  // write to console that init is done
+  write_init_done();
 
   // main loop
   while(1) {

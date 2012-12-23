@@ -27,7 +27,16 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
+#define CMD_OK          0
+#define CMD_SYNTAX_ERR  1
+#define CMD_UNKNOWN_ERR 2
+#define CMD_NO_NYBBLE   3
+#define CMD_NO_BYTE     4
+
 extern void command_init(void);
 extern void command_parse(const u08 *cmd, u08 len);
    
+extern void cmd_error(u08 cmd, u08 num);
+extern void cmd_reply(u08 cmd, u08 num);
+
 #endif

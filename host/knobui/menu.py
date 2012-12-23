@@ -22,16 +22,17 @@ class Menu:
     """handle one event of the menu.
        return False to abort menu, True to leave menu or None to stay
     """
-    if ev == 'q':
+    t = ev['type']
+    if t == 'q':
       return False
-    elif ev == 'b':
+    elif t == 'b':
       return True
-    elif ev == '-':
+    elif t == '-':
       if self.pick > 0:
         self._invert_pick(kt, self.pick)
         self.pick -= 1
         self._invert_pick(kt, self.pick)
-    elif ev == '+':
+    elif t == '+':
       if self.pick < (self.n-1):
         self._invert_pick(kt, self.pick)
         self.pick += 1

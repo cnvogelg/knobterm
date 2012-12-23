@@ -31,19 +31,16 @@
 #include "util.h"
 #include "screen.h"
 #include "input.h"
-
-#define CMD_OK          0
-#define CMD_SYNTAX_ERR  1
-#define CMD_UNKNOWN_ERR 2
-#define CMD_NO_NYBBLE   3
-#define CMD_NO_BYTE     4
+   
+#include "cmd_query.h"
+#include "cmd_draw.h"
 
 void command_init(void)
 {
    
 }
 
-static void error(u08 cmd, u08 num)
+void cmd_error(u08 cmd, u08 num)
 {
   write_begin();
   write_cmd('E');
@@ -52,19 +49,11 @@ static void error(u08 cmd, u08 num)
   write_end();
 }
 
-static void reply(u08 cmd, u08 num)
+void cmd_reply(u08 cmd, u08 num)
 {
   write_begin();
   write_cmd(cmd);
   write_hex_byte(num);
-  write_end();
-}
-
-static void cmd_version(void)
-{
-  write_begin();
-  write_cmd('v');
-  write_pstr(PSTR(VERSION));
   write_end();
 }
 
@@ -85,7 +74,7 @@ static u08 cmd_color(const u08 *cmd, u08 len)
 
   // read color value
   if(len == 1) {
-    reply('c', c->color);
+    cmd_reply('c', c->color);
   }
   else {
     u08 color;
@@ -116,7 +105,7 @@ static u08 cmd_flags(const u08 *cmd, u08 len)
 
   // read color value
   if(len == 1) {
-    reply('s', c->flags);
+    cmd_reply('s', c->flags);
   }
   else {
     // try to parse value
@@ -150,139 +139,6 @@ static u08 cmd_flags(const u08 *cmd, u08 len)
     c->flags = flags;
   }
   return CMD_OK;
-}
-
-static u08 vals[6];
-
-static u08 parse_vals(const u08 *arg, u08 num)
-{
-  for(u08 i=0;i<num;i++) {
-    if(!parse_byte(arg,&vals[i])) {
-      return CMD_NO_BYTE;
-    }
-    arg+=2;
-  }
-  return CMD_OK;
-}
-
-static u08 cmd_draw_border(const u08 *cmd, u08 len)
-{
-  if(len != 10) {
-    return CMD_SYNTAX_ERR;
-  }
-  
-  // parse type
-  u08 t;
-  switch(cmd[1]) {
-    case 'A': t=0; break;
-    case 'B': t=1; break;
-    case 'C': t=2; break;
-    default: return CMD_SYNTAX_ERR;
-  }
-  
-  // parse coords
-  u08 res = parse_vals(cmd+2,4);
-  if(res != CMD_OK) {
-    return res;
-  }
-  
-  console_border(console_get_current(), t, vals[0], vals[1], vals[2], vals[3]);
-  return CMD_OK;
-}
-
-static u08 cmd_draw_rect(const u08 *cmd, u08 len)
-{
-  if(len!=10) {
-    return CMD_SYNTAX_ERR;
-  }
-
-  // char to draw
-  u08 t = cmd[1];
-  
-  // parse coords
-  u08 res = parse_vals(cmd+2,4);
-  if(res != CMD_OK) {
-    return res;
-  }
-  
-  console_rect(console_get_current(), t, vals[0], vals[1], vals[2], vals[3]);
-  return CMD_OK;
-}
-
-static u08 cmd_draw_grid(const u08 *cmd, u08 len)
-{
-  if(len!=14) {
-    return CMD_SYNTAX_ERR;
-  }
-  
-  // parse type
-  u08 t;
-  switch(cmd[1]) {
-    case 'A': t=0; break;
-    default: return CMD_SYNTAX_ERR;
-  }
-  
-  // parse coords
-  u08 res = parse_vals(cmd+2,6);
-  if(res != CMD_OK) {
-    return res;
-  }
-  
-  console_grid(console_get_current(), t, vals[0], vals[1], vals[2], vals[3], vals[4], vals[5]);
-  return CMD_OK;
-}
-
-static u08 cmd_draw_line(const u08 *cmd, u08 len)
-{
-  // syntax (h|v)<char><b:x><b:y><b:len>
-  if(len < 8) {
-    return CMD_SYNTAX_ERR;
-  }
-  
-  u08 mode = cmd[0];
-  u08 ch = cmd[1];
-
-  // parse coords
-  u08 res = parse_vals(cmd+2,3);
-  if(res != CMD_OK) {
-    return res;
-  }
-  
-  console_t *c = console_get_current();
-  if(mode == 'h') {
-    console_h_line(c, ch, vals[0], vals[1], vals[2]);
-  }
-  else {
-    console_v_line(c, ch, vals[0], vals[1], vals[2]);    
-  }
-  return CMD_OK;
-}
-
-static u08 cmd_draw(const u08 *cmd, u08 len)
-{
-  u08 result = 0;
-  switch(cmd[1]) {
-    case 'b':
-      result = cmd_draw_border(cmd+1,len-1);
-      break;
-    case 'r':
-      result = cmd_draw_rect(cmd+1,len-1);
-      break;
-    case 'g':
-      result = cmd_draw_grid(cmd+1,len-1);
-      break;
-    case 'h':
-    case 'v':
-      result = cmd_draw_line(cmd+1, len-1);
-      break;
-    default:
-      return CMD_UNKNOWN_ERR;
-  }
-  /* always reply draw commands as they could take some time to complete */
-  if(result == 0) {
-    reply('d',0);
-  }
-  return result;
 }
 
 static u08 cmd_goto(const u08 *cmd, u08 len)
@@ -320,21 +176,28 @@ static u08 cmd_erase(const u08 *cmd, u08 len)
   console_t *c = console_get_current();
   console_clear(c, col);
   
-  reply(cmd[0],0);
+  cmd_reply(cmd[0],0);
   return CMD_OK;
 }
 
 static u08 cmd_input(const u08 *cmd, u08 len)
 {
   switch(cmd[1]) {
-    case 'b':
-      input_start();
+    case 'g': // get next event or no event
+      input_get_next_event();
       break;
-    case 'e':
-      input_stop();
-      break;
-    case 's':
-      input_single();
+    case 'w': // wait for next event or timeout (n!=0)
+      if(len==4) {
+        u08 timeout_100ms;
+        if(!parse_byte(cmd+2,&timeout_100ms)) {
+          return CMD_NO_BYTE;
+        }
+        input_wait_for_next_event(timeout_100ms);
+      } else {
+        return CMD_SYNTAX_ERR;
+      }
+    case 'c':
+      input_clear_queue();
       break;
     default:
       return CMD_UNKNOWN_ERR;
@@ -346,9 +209,6 @@ void command_parse(const u08 *cmd, u08 len)
 {
   u08 result = 0;
   switch(cmd[0]) {
-    case 'v':
-      cmd_version();
-      break;
     case 'c':
       result = cmd_color(cmd,len);
       break;
@@ -367,6 +227,9 @@ void command_parse(const u08 *cmd, u08 len)
     case 's':
       cmd_sync();
       break;
+    case 'q':
+      result = cmd_query(cmd, len);
+      break;
     case 'i':
       result = cmd_input(cmd, len);
       break;
@@ -376,6 +239,6 @@ void command_parse(const u08 *cmd, u08 len)
   }
   // report an error
   if(result != 0) {
-    error(cmd[0],result);
+    cmd_error(cmd[0],result);
   }
 }
