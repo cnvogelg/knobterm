@@ -223,6 +223,15 @@ def chunks():
   
   press_button()
 
+# 10. picture
+def picture():
+  kt.erase(knobterm.COLOR_BLACK)
+  title("knobterm: picture")
+  res = kt.picture_load(0,0,"lake.pnm")
+  kt.goto(0,h-2)
+  kt.text("load result: %d" % res)
+  press_button()
+
 # ----- main -----
 
 # get serial port for term serial device (or "emu")
@@ -244,6 +253,7 @@ print("version",version)
 print("size",w,h)
 
 # all demos
+picture()
 welcome()
 font_maps()
 font_scale()

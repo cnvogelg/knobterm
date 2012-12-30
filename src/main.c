@@ -106,15 +106,6 @@ int main(void)
 {  
   init();
   
-  // mount sdcard
-  if(fatfs_mount() == 0)
-  {
-    read_image();
-    fatfs_umount();
-  }
-
-  //console_welcome();
-
   // write to console that init is done
   write_init_done();
 

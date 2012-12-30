@@ -178,6 +178,17 @@ class KnobTerm:
       if res != b'#':
         raise IOError("Error writing chunk")
   
+  def picture_load(self, x, y, name):
+    cmd = "@pl%02x%02x%s;" % (x,y,name)
+    self._write(cmd)
+    res = self._read_line()
+    if res == '@p00':
+      return 0
+    elif res[0:3] == '@Ep':
+      return int(res[3:],16)
+    else:
+      raise IOError("Error loading picture")
+  
   # input query
   
   def _parse_event(self, line):

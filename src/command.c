@@ -31,6 +31,7 @@
 #include "util.h"
 #include "screen.h"
 #include "input.h"
+#include "picture.h"
    
 #include "cmd_query.h"
 #include "cmd_draw.h"
@@ -213,6 +214,32 @@ static u08 cmd_input(const u08 *cmd, u08 len)
   return CMD_OK;
 }
 
+static u08 cmd_picture(const u08 *cmd, u08 len)
+{
+  switch(cmd[1]) {
+    case 'l': // load a picture
+      if(len>6) {
+        u08 x,y;
+        if(!parse_byte(cmd+2,&x)) {
+          return CMD_NO_BYTE;
+        }
+        if(!parse_byte(cmd+4,&y)) {
+          return CMD_NO_BYTE;
+        }
+        u08 res = picture_load((const char *)(cmd+6),x,y); 
+        if(res == CMD_OK) {
+          cmd_reply('p',0);
+        }
+        return res;
+      }
+      else {
+        return CMD_SYNTAX_ERR;
+      }
+    default:
+      return CMD_UNKNOWN_ERR;
+  }
+}
+
 void command_parse(const u08 *cmd, u08 len)
 {
   u08 result = 0;
@@ -240,6 +267,9 @@ void command_parse(const u08 *cmd, u08 len)
       break;
     case 'i':
       result = cmd_input(cmd, len);
+      break;
+    case 'p':
+      result = cmd_picture(cmd, len);
       break;
     default:
       result = CMD_UNKNOWN_ERR;

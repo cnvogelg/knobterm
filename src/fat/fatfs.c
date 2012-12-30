@@ -8,6 +8,7 @@
 #include "fatfs.h"
 
 FATFS fatfs;
+static uint8_t mount_count = 0;
 
 extern void fatfs_init(uint8_t clock_div)
 {
@@ -67,21 +68,33 @@ extern void fatfs_init(uint8_t clock_div)
 
 extern uint8_t fatfs_mount(void)
 {
-  if(disk_initialize(0) & STA_NOINIT)
-  {
-    return 1;
+  if(mount_count == 0) {
+    if(disk_initialize(0) & STA_NOINIT)
+    {
+      return 1;
+    }
+    if(f_mount(0, &fatfs) == FR_OK)
+    {
+      mount_count = 1;
+      return 0;
+    }
+    return 2;
+  } else {
+    mount_count ++;
+    return 0;  
   }
-
-  if(f_mount(0, &fatfs) == FR_OK)
-  {
-    return 0;
-  }
-
-  return 2;
 }
 
 extern void fatfs_umount(void)
 {
-  f_mount(0, 0);
-  disk_ioctl(0, CTRL_POWER, 0); //power off
+  mount_count --;
+  if(mount_count == 0) { 
+    f_mount(0, 0);
+    disk_ioctl(0, CTRL_POWER, 0); //power off
+  }
+}
+
+extern uint8_t fatfs_is_mounted(void)
+{
+  return mount_count;
 }

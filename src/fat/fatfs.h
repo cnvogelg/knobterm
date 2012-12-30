@@ -19,5 +19,6 @@ extern void fatfs_init(uint8_t clock_div);
 
 extern uint8_t fatfs_mount(void);
 extern void fatfs_umount(void);
+extern uint8_t fatfs_is_mounted(void);
 
 #endif

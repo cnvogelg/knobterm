@@ -80,7 +80,8 @@ SRC := $(BOARD).c
 SRC += util.c uart.c timer.c
 SRC += display.c fonts.c jog.c
 SRC += fat/fatfs.c fat/ff.c fat/mmc.c
-SRC += read.c console.c screen.c write.c draw.c input.c chunk.c
+SRC += read.c console.c screen.c write.c draw.c input.c
+SRC += chunk.c picture.c
 SRC += command.c cmd_query.c cmd_draw.c
 SRC += main.c
 
@@ -101,7 +102,7 @@ CFLAGS = -g -std=gnu99
 CFLAGS += -Os
 #CFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 #CFLAGS += -fno-inline
-CFLAGS += -Wall -Werror -Wstrict-prototypes
+#CFLAGS += -Wall -Werror -Wstrict-prototypes
 CFLAGS += -I$(AVRLIBC_DIR)/include
 CFLAGS += -mmcu=$(MCU) -I. -Ifat
 
