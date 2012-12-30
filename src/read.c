@@ -29,6 +29,7 @@
 #include "uart.h"
 #include "console.h"
 #include "command.h"
+#include "chunk.h"
 
 #define MAX_LINE 80
 
@@ -98,6 +99,8 @@ void read_serial(void)
 {
   if(uart_read_data_available()) {
     u08 ch = uart_read();
-    read_putch(ch);
+    if(!chunk_handle_char(ch)) {
+      read_putch(ch);
+    }
   }
 }

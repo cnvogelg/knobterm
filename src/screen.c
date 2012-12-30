@@ -65,6 +65,16 @@ static const prog_uint8_t *font_table[] = {
   c64_font
 };
 
+u08 screen_get_flags(void)
+{
+  return cur_flags;
+}
+
+u08 screen_get_color(void)
+{
+  return cur_col;
+}
+
 void screen_init(void)
 {
   display_set_font_data(font_table[0]);

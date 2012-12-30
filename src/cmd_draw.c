@@ -29,6 +29,7 @@
 #include "write.h"
 #include "util.h"
 #include "console.h"
+#include "chunk.h"
 
 static u08 vals[6];
 
@@ -84,6 +85,25 @@ static u08 cmd_draw_rect(const u08 *cmd, u08 len)
   }
   
   console_rect(console_get_current(), t, vals[0], vals[1], vals[2], vals[3]);
+  return CMD_OK;
+}
+
+static u08 cmd_chunk_define(const u08 *cmd, u08 len)
+{
+  if(len!=10) {
+   return CMD_SYNTAX_ERR;
+  }
+
+  // char to draw
+  u08 t = cmd[1];
+  
+  // parse coords
+  u08 res = parse_vals(cmd+2,4);
+  if(res != CMD_OK) {
+   return res;
+  }
+  
+  chunk_define(t, vals[0], vals[1], vals[2], vals[3]);
   return CMD_OK;
 }
 
@@ -153,6 +173,13 @@ u08 cmd_draw(const u08 *cmd, u08 len)
    case 'v':
      result = cmd_draw_line(cmd+1, len-1);
      break;
+   case 'c':
+     result = cmd_chunk_define(cmd+1, len-1);
+     break;
+   case 'C':
+     /* no reply on start */
+     chunk_start();
+     return CMD_OK;
    default:
      return CMD_UNKNOWN_ERR;
   }

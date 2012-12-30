@@ -47,7 +47,7 @@ def dump_font(name,x,y):
   center(name,y)
   for i in range(1,8):
     row = i * 32
-    line = ""
+    line = u""
     for j in range(32):
       c = chr(row+j)
       line += c
@@ -187,6 +187,42 @@ def events():
     center("event #%02d: %s" % (i,e),7+i,fg=knobterm.COLOR_WHITE)
   press_button()
 
+def the_end():
+  kt.erase(knobterm.COLOR_BLUE)
+  title("knobterm")
+  center("this is the end!",h/2,fg=knobterm.COLOR_WHITE,bg=knobterm.COLOR_BLUE)
+
+# 9. chunks
+def chunks():
+  kt.erase(knobterm.COLOR_BLACK)
+  title("knobterm: chunks")
+  
+  # draw a text only chunk
+  kt.set_color_fg(knobterm.COLOR_LIGHT_GREY)
+  kt.goto(5,3)
+  kt.text("type 0: only text")
+  kt.chunk_define(0,5,5,10,8)
+  kt.set_color_fg(knobterm.COLOR_WHITE)
+  for c in ('#','*','.',' ','.','*','#'):
+    data = c * 80
+    kt.chunk_draw(10,8,data)
+  
+  # draw a color+text chunk
+  kt.set_color_fg(knobterm.COLOR_LIGHT_GREY)
+  kt.goto(5,15)
+  kt.text("type 1: color+text")
+  kt.chunk_define(1,5,17,10,8)
+  kt.set_color_fg(knobterm.COLOR_WHITE)
+  for c in ('#','*','.',' ','.','*','#'):
+    data = ""
+    col = 0
+    for x in range(80):
+      data += (chr(col) + chr(ord(c)+col))
+      col += 1
+    kt.chunk_draw(10*2,8,data) # note: span = width * 2 in type 1 !
+  
+  press_button()
+
 # ----- main -----
 
 # get serial port for term serial device (or "emu")
@@ -207,6 +243,7 @@ print("version",version)
 (w,h) = kt.get_size()
 print("size",w,h)
 
+# all demos
 welcome()
 font_maps()
 font_scale()
@@ -215,5 +252,7 @@ draw_border_rect()
 draw_grid_line()
 animation()
 events()
+chunks()
+the_end()
 
 kt.close()

@@ -134,7 +134,7 @@ class KnobTerm:
     self._write(cmd)
     res = self._read_line()
     return res == "@d00"
-  
+
   def draw_grid(self, type, x, y, nx, ny, dx, dy):
     cmd = "@dg%c%02x%02x%02x%02x%02x%02x;" % (chr(65+type),x,y,nx,ny,dx,dy)
     self._write(cmd)
@@ -152,6 +152,24 @@ class KnobTerm:
     self._write(cmd)
     res = self._read_line()
     return res == "@d00"
+  
+  def chunk_define(self, t, x, y, w, h):
+    cmd = "@dc%c%02x%02x%02x%02x;" % (chr(65+t),x,y,w,h)
+    self._write(cmd)
+    res = self._read_line()
+    return res == "@d00"
+  
+  def chunk_draw(self, s, h, data):
+    cmd = "@dC;"
+    self._write(cmd)
+    off = 0
+    for y in range(h):
+      line = data[off:off+s]
+      off += s
+      self._write(line)
+      res = self.ser.read()
+      if res != b'#':
+        raise IOError("Error writing chunk")
   
   # input query
   

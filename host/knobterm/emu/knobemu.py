@@ -3,6 +3,7 @@ from . import font
 from . import palette
 from . import draw
 import os
+import time
 
 class KnobEmu:
   """The KnobTerm emulator"""
@@ -132,6 +133,52 @@ class KnobEmu:
 
   def draw_v_line(self, ch, x, y, l):
     draw.draw_v_line(self.draw_font, ord(ch), x, y, l)
+    self.display.show()
+
+  def chunk_define(self, t, x, y, w, h):
+    self.chunk = (t, x, y, w, h)
+  
+  def chunk_draw(self, s, h, data):
+    delay = 0.0016 # measured delta per char
+    (t, x, y, w, h) = self.chunk
+    if t == 1:
+      # color + text
+      off = 0
+      yp = y
+      cur_fg = self.fg
+      cur_bg = self.bg
+      for l in range(h):
+        xp = x
+        for i in range(w):
+          col = ord(data[off])
+          ch = ord(data[off+1])
+          fg = (col / 16) & 0xf
+          bg = col & 0xf
+          if (fg != cur_fg) or (bg != cur_bg):
+            self.draw_font.set_color(palette.Palette,fg,bg)
+            cur_fg = fg
+            cur_bg = bg
+          self.draw_font.dc(xp,yp,ch)
+          off += 2
+          xp += 1
+        yp += 1
+        # simulate duration of chunk line transfer
+        time.sleep(delay * w)
+      self.draw_font.set_color(palette.Palette,self.fg, self.bg)
+    else:
+      # text only
+      yp = y
+      off = 0
+      for l in range(h):
+        xp = x
+        for i in range(w):
+          ch = data[off]
+          self.draw_font.dc(xp,yp,ord(ch))
+          xp += 1
+          off += 1
+        yp += 1
+        # simulate duration of chunk line transfer
+        time.sleep(delay * w)
     self.display.show()
 
   # event handling

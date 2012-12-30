@@ -128,8 +128,10 @@ void draw_grid(u08 type, u08 x, u08 y, u08 nx, u08 ny, u08 dx, u08 dy)
       y++;
     }
     /* row without grid */
-    draw_grid_span(x, y, nx, dx, bc[6], ' ', bc[7], gc[6]);
-    y++;
+    for(u08 k=0;k<dy;k++) {
+      draw_grid_span(x, y, nx, dx, bc[6], ' ', bc[7], gc[6]);
+      y++;
+    }
   }
   
   /* bot row */
