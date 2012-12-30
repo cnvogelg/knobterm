@@ -3,16 +3,12 @@ import serial
 import time
 
 class KnobTerm:
-  def __init__(self, serial_port, serial_baud=57600, timeout=10, debug=False):
+  def __init__(self, serial_port, serial_baud=57600, serial_timeout=1, debug=False):
     """create and open the serial link to the knob term"""
-    self.ser = serial.Serial(serial_port, serial_baud, timeout=timeout)
+    self.serial_port = serial_port
+    self.serial_baud = serial_baud
+    self.serial_timeout = serial_timeout
     self.debug = debug
-    # reset and wait for init command
-    l = self._read_line()
-    if l == None:
-      raise IOError("no reply from terminal")
-    if l != "@i":
-      raise IOError("invalid init reply")
   
   def _write(self, s):
     b = s.encode('latin-1')
@@ -21,21 +17,37 @@ class KnobTerm:
       o = s.replace('\n','\\n')
       print("W: '%s'" % o)
     
-  def _read_line(self, block=True):
+  def _read_line(self, block=True, timeout=None):
     if not block:
       if self.ser.inWaiting() == 0:
         return None
     line = b""
+    start_time = time.time()
     while True:
       c = self.ser.read()
       if len(c) == 0:
-        raise IOError("can't read line")
-      if c == b'\n':
+        # timeout handling
+        if timeout != None:
+          delta = time.time() - start_time
+          if delta >= timeout:
+            return None
+      elif c == b'\n':
         break
-      line += c
+      else:
+        line += c
     return line.decode('latin-1')
 
   # ----- KnobTerm API -----
+
+  def open(self, timeout=5):
+    # reset and wait for init command
+    self.ser = serial.Serial(self.serial_port, self.serial_baud, timeout=self.serial_timeout)
+    l = self._read_line(timeout=timeout)
+    if l == None:
+      return False
+    if l != "@i":
+      return False
+    return True
 
   def close(self):
     self.ser.close()
@@ -64,9 +76,9 @@ class KnobTerm:
     self._write(t)
     self.sync()
 
-  def sync(self):
+  def sync(self, timeout=None):
     self._write('@s;')
-    res = self._read_line()
+    res = self._read_line(timeout=timeout)
     return res == '@s'
 
   def goto(self, x, y):
@@ -75,6 +87,10 @@ class KnobTerm:
     
   def set_color_fg(self, fg):
     cmd = "@c%x;" % (fg)
+    self._write(cmd)
+
+  def set_color_bg(self, bg):
+    cmd = "@c-%x;" % (bg)
     self._write(cmd)
     
   def set_color(self, fg, bg):

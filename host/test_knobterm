@@ -1,0 +1,219 @@
+#!/usr/bin/env python
+#
+# test_knobterm - a test program for the knobterm terminal
+#
+
+from __future__ import print_function
+
+import knobterm
+import time
+import sys
+
+def center(txt,y,fg=None,bg=None,scale=1):
+  """helper to center a text on the screen"""
+  l = len(txt)
+  if fg and bg:
+    kt.set_color(fg,bg)
+  elif fg:
+    kt.set_color_fg(fg)
+  x = int((w-l*scale)/2)
+  kt.goto(x,y)
+  kt.text(txt)
+
+def press_button():
+  kt.set_color(knobterm.COLOR_WHITE, knobterm.COLOR_BLACK)
+  center(" press knob to contiune! ",h-1)
+  kt.wait_for_event()
+
+def title(txt):
+  center(txt,0,fg=knobterm.COLOR_WHITE,bg=knobterm.COLOR_BLACK)
+
+# 1. welcome screen
+def welcome():
+  kt.erase(knobterm.COLOR_LIGHT_BLUE)  
+  kt.set_color(knobterm.COLOR_WHITE, knobterm.COLOR_LIGHT_BLUE)
+  y = h/2-5
+  center("welcome to",y)
+  kt.set_font_scale(True, True)
+  center("knobterm",y+2,scale=2)
+  kt.set_font_scale(False, False)
+  center("by lallafa",y+5)
+  center("http://www.lallafa.de/blog",h-6,knobterm.COLOR_BLUE)
+  center("version "+version,h-4,knobterm.COLOR_LIGHT_GREY)
+  press_button()
+
+# 2. font maps
+def dump_font(name,x,y):
+  center(name,y)
+  for i in range(1,8):
+    row = i * 32
+    line = ""
+    for j in range(32):
+      c = chr(row+j)
+      line += c
+    kt.goto(x,y+i+1)
+    kt.text(line)
+
+def font_maps():
+  kt.erase(knobterm.COLOR_LIGHT_BLUE)  
+  title("knobterm: fonts")
+  kt.set_font_map(0)
+  dump_font("font #0: Amiga",4,4)  
+  kt.set_font_map(1)
+  dump_font("font #1: C=64",4,16)  
+  kt.set_font_map(0)
+  press_button()
+
+# 3. font scaling
+def font_scale():
+  kt.erase(knobterm.COLOR_LIGHT_GREEN)  
+  title("knobterm: font scaling")
+  kt.set_font_scale(False, False)
+  center("normal: 8x8",4)
+  kt.set_font_scale(True, False)
+  center("dbl_x: 16x8",8,scale=2)
+  kt.set_font_scale(False, True)
+  center("dbl_y: 8x16",12)
+  kt.set_font_scale(True, True)
+  center("dbl_xy: 16x16",16,scale=2)
+  kt.set_font_scale(False, False)
+  press_button()
+
+# 4. colors
+def colors():
+  kt.erase(knobterm.COLOR_BLACK)
+  title("knobterm: colors")
+  kt.set_color(knobterm.COLOR_LIGHT_GREY, knobterm.COLOR_BLACK)
+  kt.goto(5,5)
+  kt.text("foreground")
+  kt.goto(25,5)
+  kt.text("background")
+  num = 0
+  for i in knobterm.color_names:
+    kt.goto(2,7+num)
+    kt.set_color(num, knobterm.COLOR_BLACK)
+    kt.text("* # " )
+    kt.set_color_fg(knobterm.COLOR_WHITE)
+    kt.text(i)
+    
+    kt.goto(22,7+num)
+    kt.set_color(knobterm.COLOR_WHITE, num)
+    kt.text("* # ")
+    kt.set_color_bg(knobterm.COLOR_BLACK)
+    kt.text(i)    
+    
+    num += 1
+  press_button()
+
+# 5. draw borders and rectangles
+def draw_border_rect():
+  kt.erase(knobterm.COLOR_BLACK)
+  title("knobterm: border & rect")
+  kt.set_color(knobterm.COLOR_WHITE, knobterm.COLOR_BLACK)
+  for i in range(3):
+    kt.goto(12*i+2,3)
+    kt.set_color_fg(knobterm.COLOR_LIGHT_GREY)
+    kt.text("border #"+str(i))
+    kt.set_color_fg(knobterm.COLOR_WHITE)
+    kt.draw_border(i, 12*i+2,4,5,5)
+
+  off = 0
+  for c in ('#',' ','*'):
+    kt.goto(12*off+2,16)
+    kt.set_color(knobterm.COLOR_LIGHT_GREY, knobterm.COLOR_BLACK)
+    kt.text("rect "+c)
+    kt.set_color(knobterm.COLOR_WHITE, knobterm.COLOR_DARK_GREY)
+    kt.draw_rect(c, 12*off+2, 17, 5, 5)
+    off += 1
+
+  press_button()
+
+# 6. draw grids and lines
+def draw_grid_line():
+  kt.erase(knobterm.COLOR_BLACK)
+  title("knobterm: grid & h/v line")
+  kt.set_color(knobterm.COLOR_WHITE, knobterm.COLOR_BLACK)
+  kt.goto(2,3)
+  kt.text("grids")
+  kt.draw_grid(0, 2, 4, 4, 2, 1, 1)
+  kt.draw_grid(0, 14, 2, 2, 4, 2, 1)
+  kt.draw_grid(0, 24, 2, 2, 3, 1, 2)
+
+  kt.goto(2,15)
+  kt.text("h lines")
+  off = 0
+  for c in ('#', '=', '-', chr(0x80)):
+    y = 17+off
+    kt.draw_h_line(c, 2, y, 10)
+    off += 2
+  
+  kt.goto(22,15)
+  kt.text("v lines")
+  off = 22
+  for c in ('#', '+', '*', chr(0x82)):
+    kt.draw_v_line(c, off, 17, 10)
+    off += 2
+  
+  press_button()
+
+# 7. animation
+def animation():
+  kt.erase(knobterm.COLOR_BLACK)
+  title("knobterm: animation")
+  # move around
+  for i in range(10):
+    kt.goto(5+i,5)
+    kt.text(" hello, ")
+    kt.goto(25-i,6)
+    kt.text(" world! ")
+    kt.sync()
+    time.sleep(0.1)
+  # color cycling
+  for i in range(16):
+    center("colors!",10,fg=i)
+    time.sleep(0.1)  
+    
+  press_button()
+
+# 8. events
+def events():
+  kt.erase(knobterm.COLOR_BLACK)
+  title("knobterm: events")
+  center("move or press knob!",5,fg=knobterm.COLOR_LIGHT_GREY)
+  num = 20
+  for i in range(num):
+    center("%02d events left" % (num-i),h-2,fg=knobterm.COLOR_GREY)
+    e = kt.wait_for_event()
+    center("event #%02d: %s" % (i,e),7+i,fg=knobterm.COLOR_WHITE)
+  press_button()
+
+# ----- main -----
+
+# get serial port for term serial device (or "emu")
+if len(sys.argv) > 1:
+  serial_port = sys.argv[1]
+else:
+  serial_port = None
+
+# create knobterm instance  
+kt = knobterm.KnobTerm(serial_port)
+if not kt.open():
+  print("opening knobterm failed!")
+  sys.exit(1)
+
+# get some infos
+version = kt.get_version()
+print("version",version)
+(w,h) = kt.get_size()
+print("size",w,h)
+
+welcome()
+font_maps()
+font_scale()
+colors()
+draw_border_rect()
+draw_grid_line()
+animation()
+events()
+
+kt.close()

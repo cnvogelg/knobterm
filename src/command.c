@@ -86,10 +86,18 @@ static u08 cmd_color(const u08 *cmd, u08 len)
       c->color = (color << 4) | (c->color & 0xf);
     } else {
       /* set both colors */
-      if(!parse_byte(cmd+1, &color)) {
-        return CMD_NO_BYTE;
+      if(cmd[1] != '-') {
+        if(!parse_byte(cmd+1, &color)) {
+          return CMD_NO_BYTE;
+        }
+        c->color = color;
+      } else {
+        /* set background color */
+        if(!parse_nybble(cmd[2], &color)) {
+          return CMD_NO_NYBBLE;
+        }
+        c->color = (c->color & 0xf0) | color;
       }
-      c->color = color;
     }
   }
   return CMD_OK;

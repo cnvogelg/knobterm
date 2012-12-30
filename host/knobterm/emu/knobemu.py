@@ -1,7 +1,7 @@
-import display
-import font
-import palette
-import draw
+from . import display
+from . import font
+from . import palette
+from . import draw
 import os
 
 class KnobEmu:
@@ -28,7 +28,7 @@ class KnobEmu:
   def _setup_fonts(self, font_dir):
     # set font path
     if font_dir == None:
-      font_dir = os.path.join(os.path.dirname(__file__),"..","..","util")
+      font_dir = os.path.join(os.path.dirname(__file__),"..","..","..","util")
     for f in self.font_names:
       font_path = os.path.join(font_dir, f) + ".png"
       if not os.path.exists(font_path):
@@ -42,6 +42,9 @@ class KnobEmu:
       self.cy += self.fy
 
   # ----- KnobTerm API -----
+
+  def open(self):
+    return True
 
   def close(self):
     self.display.quit()
@@ -76,7 +79,12 @@ class KnobEmu:
     self.fg = fg
     for f in self.fonts:
       f.set_color(palette.Palette,self.fg, self.bg)
-      
+  
+  def set_color_bg(self, bg):
+    self.bg = bg
+    for f in self.fonts:
+      f.set_color(palette.Palette,self.fg, self.bg)
+  
   def set_color(self, fg, bg):
     self.fg = fg
     self.bg = bg

@@ -65,8 +65,9 @@ def draw_grid(font, t, x, y, nx, ny, dx, dy):
     if j > 0:
       draw_grid_span(font, x, y, nx, dx, gc[2], gc[5], gc[3], gc[4])
       y+=1
-    draw_grid_span(font, x, y, nx, dx, bc[6], ord(' '), bc[7], gc[6])
-    y+=1
+    for i in range(dy):
+      draw_grid_span(font, x, y, nx, dx, bc[6], ord(' '), bc[7], gc[6])
+      y+=1
   
   draw_grid_span(font, x, y, nx, dx, bc[2], bc[5], bc[3], gc[1])
 

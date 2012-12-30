@@ -2,3 +2,5 @@ softWrap = false
 softTabs = true
 tabSize = 2
 
+[ test_* ]
+fileType = 'source.python'
