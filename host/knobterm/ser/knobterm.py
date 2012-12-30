@@ -1,6 +1,7 @@
 from __future__ import print_function
 import serial
 import time
+import sys
 
 class KnobTerm:
   def __init__(self, serial_port, serial_baud=57600, serial_timeout=1, debug=False):
@@ -11,7 +12,10 @@ class KnobTerm:
     self.debug = debug
   
   def _write(self, s):
-    b = s.encode('latin-1')
+    if sys.version < '3':
+      b = s
+    else:
+      b = s.encode('latin-1')
     self.ser.write(b)
     if self.debug:
       o = s.replace('\n','\\n')
@@ -35,7 +39,10 @@ class KnobTerm:
         break
       else:
         line += c
-    return line.decode('latin-1')
+    if sys.version < '3':
+      return line
+    else:
+      return line.decode('latin-1')
 
   # ----- KnobTerm API -----
 
