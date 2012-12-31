@@ -4,12 +4,13 @@ from . import palette
 from . import draw
 import os
 import time
+import pygame
 
 class KnobEmu:
   """The KnobTerm emulator"""
   font_names = ('topaz','c64')
   
-  def __init__(self, font_dir=None):
+  def __init__(self, font_dir=None, data_dir=None):
     self.display = display.Display()
     self.fonts = []
     self._setup_fonts(font_dir)
@@ -25,6 +26,10 @@ class KnobEmu:
     for f in self.fonts:
       f.set_color(palette.Palette,self.fg,self.bg)
     self.draw_font = self.fonts[1]
+    # setup data dir
+    if data_dir == None:
+      data_dir = os.path.join(os.path.dirname(__file__),"..","..","..","data")
+    self.data_dir = data_dir
     
   def _setup_fonts(self, font_dir):
     # set font path
@@ -180,6 +185,29 @@ class KnobEmu:
         # simulate duration of chunk line transfer
         time.sleep(delay * w)
     self.display.show()
+
+  def _simulate_rgb565(self,surface):
+    w = surface.get_width()
+    h = surface.get_height()
+    for y in range(h):
+      for x in range(w):
+        c = surface.get_at((x,y))
+        # need swizzle here?! bug?
+        r = c.b & ~0x7
+        g = c.g & ~0x3
+        b = c.r & ~0x7
+        surface.set_at((x,y),pygame.Color(r,g,b,255))
+
+  def picture_load(self, x, y, name):
+    path = os.path.join(self.data_dir,name)
+    if not os.path.exists(path):
+      return 0x11 # PIC_OPEN_ERROR
+    else:
+      surface = pygame.image.load(path)
+      self._simulate_rgb565(surface)
+      self.display.screen.blit(surface,(x*8,y*8))
+      self.display.show()
+      return 0
 
   # event handling
   
