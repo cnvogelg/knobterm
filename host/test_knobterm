@@ -253,7 +253,6 @@ print("version",version)
 print("size",w,h)
 
 # all demos
-picture()
 welcome()
 font_maps()
 font_scale()
@@ -263,6 +262,7 @@ draw_grid_line()
 animation()
 events()
 chunks()
+picture()
 the_end()
 
 kt.close()

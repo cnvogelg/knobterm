@@ -29,6 +29,9 @@
 #include "display.h"
 #include "fat/fatfs.h"
 #include "write.h"
+   
+#include "util.h"
+#include "uart.h"
 
 #define BUF_SIZE 256
 
@@ -37,6 +40,8 @@ static u16 buf_avail;
 static u16 buf_pos;
 static u16 width;
 static u16 height;
+static u08 partial_rgb[3];
+static u08 partial_num;
 
 static u08 parse_dec(const u08 *buf, u16 *out)
 {
@@ -111,7 +116,7 @@ static u16 parse_header(const u08 *buf, u16 num)
   return CMD_OK;
 }
 
-static u08 read_byte(FIL *fh,u08 *b)
+static u08 fill_buffer(FIL *fh)
 {
   if(buf_avail == 0) {
     UINT read;
@@ -122,44 +127,97 @@ static u08 read_byte(FIL *fh,u08 *b)
     buf_avail = read;
     buf_pos = 0;
   }
-  
-  *b = buf[buf_pos];
-  buf_pos ++;
-  buf_avail --;
   return CMD_OK;
 }
 
-static u08 read_pixel(FIL *fh,u08 *rgb)
+static void send_pixel(const char *rgb)
 {
-  for(int i=0;i<3;i++) {
-    u08 res = read_byte(fh,rgb+i);
-    if(res != CMD_OK) {
-      return res;
-    }
-  }
-  return CMD_OK;
+  u16 color = RGB(rgb[0],rgb[1],rgb[2]);
+  display_draw_pixel(color);
 }
 
 static u08 load_data(FIL *fh,u16 xp, u16 yp)
 {
   u08 result = CMD_OK;
-  
-  for(u16 y=0;y<height;y++) {
-    for(u16 x=0;x<width;x++) {
-      u08 rgb[3];
-      if(result == CMD_OK) {
-        result = read_pixel(fh,rgb);
+  u16 x = 0;
+  u16 y = 0;
+  while(y < height) {
+    
+    // fetch partial pixel at the end of the buffer
+    if(buf_avail < 3) {
+      while(buf_avail > 0) {
+        partial_rgb[partial_num] = buf[buf_pos];
+        partial_num ++;
+        buf_pos++;
+        buf_avail--;
       }
-      u16 color = RGB(rgb[0],rgb[1],rgb[2]);
-
-      display_set_area(xp+x,yp+y,xp+x,yp+y);
-      display_draw_start();
-      display_draw_pixel(color);
-      display_draw_stop();
     }
-  }
-  
-  return result;
+    
+    // read a new buffer if the current one is empty
+    // -> read from SD card
+    if(buf_avail == 0) {
+      result = fill_buffer(fh);
+      if(result != CMD_OK) {
+        return result;
+      }
+    }
+    
+    // do we have to fill the partial pixel with the fresh buffer?
+    if(partial_num > 0) {
+      // this only happens after an empty buffer
+      while(partial_num < 3) {
+        if(buf_avail == 0) {
+          return PIC_READ_ERROR;
+        }
+        partial_rgb[partial_num] = buf[buf_pos];
+        partial_num++;
+        buf_pos++;
+        buf_avail--;
+      }
+    }
+    
+    // calculate the number of pixels in the buffer
+    // and the number of pixels fitting in the current line
+    // -> use min of both
+    u16 got_pixels = buf_avail / 3;
+    if(partial_num > 0) {
+      got_pixels ++;
+    }
+    u16 line_pixels = width - x;
+    u16 draw_pixels;
+    if(got_pixels < line_pixels) {
+      draw_pixels = got_pixels;
+    } else {
+      draw_pixels = line_pixels;
+    }
+    
+    // determine the display area (=line) for these pixels
+    u16 x_end = x + draw_pixels - 1;
+    display_set_area(xp + x, yp + y, xp + x_end, yp+y);
+    display_draw_start();
+    // send partial pixel first
+    if(partial_num>0) {
+      send_pixel(partial_rgb);
+      draw_pixels--;
+      partial_num = 0;
+    }
+    // now send buffer pixels
+    for(u16 i=0;i<draw_pixels;i++) {
+      const u08 *rgb = buf + buf_pos;
+      send_pixel(rgb);
+      buf_pos += 3;
+      buf_avail -= 3;
+    }
+    display_draw_stop();
+
+    // update draw location
+    x = x_end + 1;
+    if(x == width) {
+      x = 0;
+      y++;
+    }
+  }  
+  return CMD_OK;
 }
 
 u08 picture_load(const char *filename, u08 x, u08 y)
