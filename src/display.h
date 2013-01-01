@@ -43,6 +43,8 @@ extern u08 display_orientation;
 
 extern void display_init(u08 clock_div);
 extern void display_reset(void);
+extern void display_enable(u08 on);
+extern void display_backlight(u08 on);
 extern void display_set_orientation(u08 o);
 extern void display_set_area(u16 x0, u16 y0, u16 x1, u16 y1);
 

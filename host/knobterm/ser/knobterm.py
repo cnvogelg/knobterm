@@ -178,6 +178,20 @@ class KnobTerm:
   def picture_load(self, x, y, name):
     cmd = "@pl%02x%02x%s;" % (x,y,name)
     return self._cmd(cmd)
+    
+  def display_enable(self, on):
+    if on:
+      cmd = "@yo;"
+    else:
+      cmd = "@yf;"
+    return self._cmd(cmd)
+
+  def display_backlight(self, on):
+    if on:
+      cmd = "@yb;"
+    else:
+      cmd = "@yd;"
+    return self._cmd(cmd)
   
   # input query
   

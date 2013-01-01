@@ -232,6 +232,27 @@ def picture():
   kt.text("load result: %d" % res)
   press_button()
 
+# 11. display on/off
+def display():
+  kt.erase(knobterm.COLOR_BLACK)
+  title("knobterm: display")
+  center("press knob to turn display off", 5)
+  center("and then press knob again",6)
+  center("to turn it on again",7)
+  kt.wait_for_event()
+  kt.display_enable(0)
+  kt.wait_for_event()
+  kt.display_enable(1)
+  center("press knob to turn backlight off", 15)
+  center("and then press knob again",16)
+  center("to turn it on again",17)
+  kt.wait_for_event()
+  kt.display_backlight(0)
+  kt.wait_for_event()
+  kt.display_backlight(1)
+  center("done!",25)
+  press_button()
+  
 # ----- main -----
 
 # get serial port for term serial device (or "emu")
@@ -263,6 +284,7 @@ animation()
 events()
 chunks()
 picture()
+display()
 the_end()
 
 kt.close()

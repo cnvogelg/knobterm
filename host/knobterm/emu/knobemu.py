@@ -30,6 +30,7 @@ class KnobEmu:
     if data_dir == None:
       data_dir = os.path.join(os.path.dirname(__file__),"..","..","..","data")
     self.data_dir = data_dir
+    self.last_screen = None
     
   def _setup_fonts(self, font_dir):
     # set font path
@@ -229,6 +230,26 @@ class KnobEmu:
         self.display.screen.blit(surface,(xp,yp+i),area=pygame.Rect(0,i,w,1))
         self.display.show()
       return 0
+
+  def display_enable(self, on):
+    if on:
+      if self.last_screen != None:
+        self.display.screen.blit(self.last_screen,(0,0))
+    else:
+      self.last_screen = self.display.screen.copy()
+      self.display.screen.fill(pygame.Color(255,255,255))
+    self.display.show()
+    return 0
+
+  def display_backlight(self, on):
+    if on:
+      if self.last_screen != None:
+        self.display.screen.blit(self.last_screen,(0,0))
+    else:
+      self.last_screen = self.display.screen.copy()
+      self.display.screen.fill(pygame.Color(0,0,0))
+    self.display.show()
+    return 0
 
   # event handling
   

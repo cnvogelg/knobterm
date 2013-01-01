@@ -191,6 +191,28 @@ void display_reset(void)
     display_set_orientation(0);
 }
 
+void display_enable(u08 on)
+{
+  if(on) {
+    wr_cmd(0x28, 0x0038);
+    _delay_ms(40);
+    wr_cmd(0x28, 0x003C);  
+  } else {
+    wr_cmd(0x28, 0x0038);
+    _delay_ms(40);
+    wr_cmd(0x28, 0x0004);
+  }
+}
+
+void display_backlight(u08 on)
+{
+  if(on) {
+    LED_ENABLE();
+  } else {
+    LED_DISABLE();
+  }
+}
+
 u16 display_width;
 u16 display_height;
 u08 display_orientation; 

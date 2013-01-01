@@ -32,6 +32,7 @@
 #include "screen.h"
 #include "input.h"
 #include "picture.h"
+#include "display.h"
    
 #include "cmd_query.h"
 #include "cmd_draw.h"
@@ -233,6 +234,26 @@ static u08 cmd_picture(const u08 *cmd, u08 len)
   }
 }
 
+static u08 cmd_display(const u08 *cmd, u08 len)
+{
+  switch(cmd[1]) {
+    case 'o': // display on
+      display_enable(1);
+      return CMD_OK;
+    case 'f': // display off
+      display_enable(0);
+      return CMD_OK;
+    case 'b': // backlight on
+      display_backlight(1);
+      return CMD_OK;
+    case 'd': // backlight off
+      display_backlight(0);
+      return CMD_OK;
+    default:
+      return CMD_UNKNOWN_ERR;
+  }
+}
+
 void command_parse(const u08 *cmd, u08 len)
 {
   u08 result = 0;
@@ -264,6 +285,9 @@ void command_parse(const u08 *cmd, u08 len)
       break;
     case 'p':
       result = cmd_picture(cmd, len);
+      break;
+    case 'y':
+      result = cmd_display(cmd, len);
       break;
     default:
       result = CMD_UNKNOWN_ERR;
