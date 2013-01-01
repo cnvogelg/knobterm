@@ -179,13 +179,9 @@ u08 cmd_draw(const u08 *cmd, u08 len)
    case 'C':
      /* no reply on start */
      chunk_start();
-     return CMD_OK;
+     return CMD_NO_REPLY;
    default:
      return CMD_UNKNOWN_ERR;
-  }
-  /* always reply draw commands as they could take some time to complete */
-  if(result == 0) {
-   cmd_reply('d',0);
   }
   return result;
 }

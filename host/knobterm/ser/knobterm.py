@@ -44,6 +44,19 @@ class KnobTerm:
     else:
       return line.decode('latin-1')
 
+  def _read_status(self, block=True, timeout=None):
+    line = self._read_line(block,timeout)
+    if line == None:
+      return None
+    if not line.startswith('@:'):
+      raise IOError("Invalid status reply!")
+    status = int(line[2:4])
+    return status
+    
+  def _cmd(self, cmd):
+    self._write(cmd)
+    return self._read_status()
+
   # ----- KnobTerm API -----
 
   def open(self, timeout=5):
@@ -81,32 +94,30 @@ class KnobTerm:
   def text(self, t):
     t = t.replace('@','@@')
     self._write(t)
-    self.sync()
+    return self.sync()
 
   def sync(self, timeout=None):
-    self._write('@s;')
-    res = self._read_line(timeout=timeout)
-    return res == '@s'
+    return self._cmd('@s;')
 
   def goto(self, x, y):
     cmd = "@g%02x%02x;" % (x,y)
-    self._write(cmd)
+    return self._cmd(cmd)
     
   def set_color_fg(self, fg):
     cmd = "@c%x;" % (fg)
-    self._write(cmd)
+    return self._cmd(cmd)
 
   def set_color_bg(self, bg):
     cmd = "@c-%x;" % (bg)
-    self._write(cmd)
+    return self._cmd(cmd)
     
   def set_color(self, fg, bg):
     cmd = "@c%x%x;" % (fg, bg)
-    self._write(cmd)
+    return self._cmd(cmd)
 
   def set_flags(self, f):
     cmd = "@f%02x;" % (f)
-    self._write(cmd)
+    return self._cmd(cmd)
     
   def set_font_scale(self, x, y):
     n = 'n'
@@ -117,54 +128,40 @@ class KnobTerm:
     elif y:
       n = 'y'
     cmd = "@f%s;" % n
-    self._write(cmd)
+    return self._cmd(cmd)
 
   def set_font_map(self, num):
     n = chr(65 + num)
     cmd = "$@f%s;" % n
-    self._write(cmd)
+    return self._cmd(cmd)
 
   def erase(self, col):
     cmd = "@e%x;" % (col)
-    self._write(cmd)
-    res = self._read_line()
-    return res == "@e00"
+    return self._cmd(cmd)
 
   def draw_border(self, type, x, y, w, h):
     cmd = "@db%c%02x%02x%02x%02x;" % (chr(65+type),x,y,w,h)
-    self._write(cmd)
-    res = self._read_line()
-    return res == "@d00"
+    return self._cmd(cmd)
   
   def draw_rect(self, ch, x, y, w, h):
     cmd = "@dr%c%02x%02x%02x%02x;" % (ch,x,y,w,h)
-    self._write(cmd)
-    res = self._read_line()
-    return res == "@d00"
+    return self._cmd(cmd)
 
   def draw_grid(self, type, x, y, nx, ny, dx, dy):
     cmd = "@dg%c%02x%02x%02x%02x%02x%02x;" % (chr(65+type),x,y,nx,ny,dx,dy)
-    self._write(cmd)
-    res = self._read_line()
-    return res == "@d00"
+    return self._cmd(cmd)
   
   def draw_h_line(self, ch, x, y, l):
     cmd = "@dh%c%02x%02x%02x;" % (ch, x, y, l)
-    self._write(cmd)
-    res = self._read_line()
-    return res == "@d00"
+    return self._cmd(cmd)
 
   def draw_v_line(self, ch, x, y, l):
     cmd = "@dv%c%02x%02x%02x;" % (ch, x, y, l)
-    self._write(cmd)
-    res = self._read_line()
-    return res == "@d00"
+    return self._cmd(cmd)
   
   def chunk_define(self, t, x, y, w, h):
     cmd = "@dc%c%02x%02x%02x%02x;" % (chr(65+t),x,y,w,h)
-    self._write(cmd)
-    res = self._read_line()
-    return res == "@d00"
+    return self._cmd(cmd)
   
   def chunk_draw(self, s, h, data):
     cmd = "@dC;"
@@ -180,14 +177,7 @@ class KnobTerm:
   
   def picture_load(self, x, y, name):
     cmd = "@pl%02x%02x%s;" % (x,y,name)
-    self._write(cmd)
-    res = self._read_line()
-    if res == '@p00':
-      return 0
-    elif res[0:3] == '@Ep':
-      return int(res[3:],16)
-    else:
-      raise IOError("Error loading picture")
+    return self._cmd(cmd)
   
   # input query
   

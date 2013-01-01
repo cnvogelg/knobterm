@@ -58,20 +58,14 @@ static void cmd_query_size(void)
 
 u08 cmd_query(const u08 *cmd, u08 len)
 {
-  u08 result = 0;
   switch(cmd[1]) {
    case 's': // size of terminal
      cmd_query_size();
-     return CMD_OK;
+     return CMD_NO_REPLY;
    case 'v': // version
      cmd_query_version();
-     return CMD_OK;
+     return CMD_NO_REPLY;
    default:
      return CMD_UNKNOWN_ERR;
   }
-  /* always reply draw commands as they could take some time to complete */
-  if(result == 0) {
-    cmd_reply('d',0);
-  }
-  return result;
 }

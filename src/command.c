@@ -41,12 +41,12 @@ void command_init(void)
    
 }
 
-void cmd_error(u08 cmd, u08 num)
+/* send a status reply */
+void cmd_status(u08 status)
 {
   write_begin();
-  write_cmd('E');
-  write_ch(cmd);
-  write_hex_byte(num);
+  write_cmd(':');
+  write_hex_byte(status);
   write_end();
 }
 
@@ -58,12 +58,7 @@ void cmd_reply(u08 cmd, u08 num)
   write_end();
 }
 
-static void cmd_sync(void)
-{
-  write_begin();
-  write_cmd('s');
-  write_end();
-}
+/* ---------- commands ---------- */
 
 static u08 cmd_color(const u08 *cmd, u08 len)
 {
@@ -76,6 +71,7 @@ static u08 cmd_color(const u08 *cmd, u08 len)
   // read color value
   if(len == 1) {
     cmd_reply('c', c->color);
+    return CMD_NO_REPLY;
   }
   else {
     u08 color;
@@ -112,9 +108,10 @@ static u08 cmd_flags(const u08 *cmd, u08 len)
     return CMD_SYNTAX_ERR;
   }
 
-  // read color value
+  // read flags value
   if(len == 1) {
     cmd_reply('s', c->flags);
+    return CMD_NO_REPLY;
   }
   else {
     // try to parse value
@@ -185,7 +182,6 @@ static u08 cmd_erase(const u08 *cmd, u08 len)
   console_t *c = console_get_current();
   console_clear(c, col);
   
-  cmd_reply(cmd[0],0);
   return CMD_OK;
 }
 
@@ -194,7 +190,7 @@ static u08 cmd_input(const u08 *cmd, u08 len)
   switch(cmd[1]) {
     case 'g': // get next event or no event
       input_get_next_event();
-      break;
+      return CMD_NO_REPLY;
     case 'w': // wait for next event or timeout (n!=0)
       if(len==4) {
         u08 timeout_100ms;
@@ -202,6 +198,7 @@ static u08 cmd_input(const u08 *cmd, u08 len)
           return CMD_NO_BYTE;
         }
         input_wait_for_next_event(timeout_100ms);
+        return CMD_NO_REPLY;
       } else {
         return CMD_SYNTAX_ERR;
       }
@@ -226,11 +223,7 @@ static u08 cmd_picture(const u08 *cmd, u08 len)
         if(!parse_byte(cmd+4,&y)) {
           return CMD_NO_BYTE;
         }
-        u08 res = picture_load((const char *)(cmd+6),x,y); 
-        if(res == CMD_OK) {
-          cmd_reply('p',0);
-        }
-        return res;
+        return picture_load((const char *)(cmd+6),x,y); 
       }
       else {
         return CMD_SYNTAX_ERR;
@@ -260,7 +253,8 @@ void command_parse(const u08 *cmd, u08 len)
       result = cmd_erase(cmd, len);
       break;
     case 's':
-      cmd_sync();
+      /* do nothing - only return status */
+      result = CMD_OK;
       break;
     case 'q':
       result = cmd_query(cmd, len);
@@ -275,8 +269,8 @@ void command_parse(const u08 *cmd, u08 len)
       result = CMD_UNKNOWN_ERR;
       break;
   }
-  // report an error
-  if(result != 0) {
-    cmd_error(cmd[0],result);
+  // report status back
+  if(result != CMD_NO_REPLY) {
+    cmd_status(result);
   }
 }

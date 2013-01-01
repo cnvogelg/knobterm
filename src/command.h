@@ -32,6 +32,7 @@
 #define CMD_UNKNOWN_ERR 2
 #define CMD_NO_NYBBLE   3
 #define CMD_NO_BYTE     4
+#define CMD_NO_REPLY    0xff
 
 extern void command_init(void);
 extern void command_parse(const u08 *cmd, u08 len);

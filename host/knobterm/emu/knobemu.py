@@ -71,35 +71,40 @@ class KnobEmu:
         self.cx += self.fx
         if self.cx == self.width:
           self._newline()
-    
     self.display.show()
+    return 0
 
   def sync(self):
     self.display.show()
+    return 0
 
   def goto(self, x, y):
     self.cx = x
     self.cy = y
+    return 0
     
   def set_color_fg(self, fg):
     self.fg = fg
     for f in self.fonts:
       f.set_color(palette.Palette,self.fg, self.bg)
+    return 0
   
   def set_color_bg(self, bg):
     self.bg = bg
     for f in self.fonts:
       f.set_color(palette.Palette,self.fg, self.bg)
+    return 0
   
   def set_color(self, fg, bg):
     self.fg = fg
     self.bg = bg
     for f in self.fonts:
       f.set_color(palette.Palette,self.fg, self.bg)
+    return 0
 
   def set_flags(self, f):
     # todo
-    pass
+    return 0
     
   def set_font_scale(self, x, y):
     for f in self.fonts:
@@ -112,36 +117,45 @@ class KnobEmu:
       self.fy = 2
     else:
       self.fy = 1
+    return 0
 
   def set_font_map(self, num):
     self.fi = num
+    return 0
 
   def erase(self, col):
     self.display.screen.fill(palette.Palette[col])
     self.display.show()
+    return 0
 
   def draw_border(self, t, x, y, w, h):
     draw.draw_border(self.draw_font, t, x, y, w, h)
     self.display.show()
+    return 0
   
   def draw_rect(self, ch, x, y, w, h):
     draw.draw_rect(self.draw_font, ord(ch), x, y, w, h)
     self.display.show()
+    return 0
   
   def draw_grid(self, t, x, y, nx, ny, dx, dy):
     draw.draw_grid(self.draw_font, t, x, y, nx, ny, dx, dy)
     self.display.show()
-  
+    return 0
+
   def draw_h_line(self, ch, x, y, l):
     draw.draw_h_line(self.draw_font, ord(ch), x, y, l)
     self.display.show()
+    return 0
 
   def draw_v_line(self, ch, x, y, l):
     draw.draw_v_line(self.draw_font, ord(ch), x, y, l)
     self.display.show()
+    return 0
 
   def chunk_define(self, t, x, y, w, h):
     self.chunk = (t, x, y, w, h)
+    return 0
   
   def chunk_draw(self, s, h, data):
     delay = 0.0016 # measured delta per char
@@ -185,6 +199,7 @@ class KnobEmu:
         # simulate duration of chunk line transfer
         time.sleep(delay * w)
     self.display.show()
+    return 0
 
   def _simulate_rgb565(self,surface):
     w = surface.get_width()
@@ -205,8 +220,14 @@ class KnobEmu:
     else:
       surface = pygame.image.load(path)
       self._simulate_rgb565(surface)
-      self.display.screen.blit(surface,(x*8,y*8))
-      self.display.show()
+      h = surface.get_height()
+      w = surface.get_width()
+      xp = x * 8
+      yp = y * 8
+      # simulate scan line wise loading
+      for i in range(h):
+        self.display.screen.blit(surface,(xp,yp+i),area=pygame.Rect(0,i,w,1))
+        self.display.show()
       return 0
 
   # event handling
